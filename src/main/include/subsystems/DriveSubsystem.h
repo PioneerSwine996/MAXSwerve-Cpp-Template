@@ -63,7 +63,7 @@ class DriveSubsystem : public frc2::SubsystemBase {
    *
    * @return the robot's heading in degrees, from 180 to 180
    */
-  units::degree_t GetHeading() const;
+  units::degree_t GetHeading();
 
   /**
    * Zeroes the heading of the robot.
@@ -111,7 +111,7 @@ class DriveSubsystem : public frc2::SubsystemBase {
   MAXSwerveModule m_rearRight;
 
   // The gyro sensor
-  frc::ADIS16470_IMU m_gyro;
+  studica::AHRS m_gyro{studica::AHRS::NavXComType::kMXP_SPI};
 
   // Odometry class for tracking robot pose
   // 4 defines the number of modules
