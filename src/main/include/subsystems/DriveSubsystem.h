@@ -112,6 +112,7 @@ class DriveSubsystem : public frc2::SubsystemBase {
 
   // The gyro sensor
   studica::AHRS m_gyro{studica::AHRS::NavXComType::kMXP_SPI};
+  
 
   // Odometry class for tracking robot pose
   // 4 defines the number of modules

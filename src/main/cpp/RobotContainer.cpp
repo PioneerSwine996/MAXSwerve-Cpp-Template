@@ -18,8 +18,12 @@
 
 #include <utility>
 
+#include <frc/smartdashboard/SmartDashboard.h>
+
 #include "Constants.h"
 #include "subsystems/DriveSubsystem.h"
+
+
 
 using namespace DriveConstants;
 
@@ -44,6 +48,12 @@ RobotContainer::RobotContainer() {
             true);
       },
       {&m_drive}));
+
+    frc2::RunCommand(
+        [this] {
+            frc::SmartDashboard::PutNumber("Gyro yaw", m_drive.GetHeading().value());
+        },
+        {&m_drive}).Repeatedly();
 }
 
 void RobotContainer::ConfigureButtonBindings() {
