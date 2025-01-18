@@ -35,10 +35,10 @@ constexpr double kMagnitudeSlewRate = 1.8;   // percent per second (1 = 100%)
 constexpr double kRotationalSlewRate = 2.0;  // percent per second (1 = 100%)
 
 // Chassis configuration
-constexpr units::meter_t kTrackWidth =
-    0.6731_m;  // Distance between centers of right and left wheels on robot
-constexpr units::meter_t kWheelBase =
-    0.6731_m;  // Distance between centers of front and back wheels on robot
+constexpr units::centimeter_t kTrackWidth =
+    73.6_cm;  // Distance between centers of right and left wheels on robot
+constexpr units::centimeter_t kWheelBase =
+    79.0_cm;  // Distance between centers of front and back wheels on robot
 
 // Angular offsets of the modules relative to the chassis in radians
 constexpr double kFrontLeftChassisAngularOffset = -std::numbers::pi / 2;
@@ -47,15 +47,15 @@ constexpr double kRearLeftChassisAngularOffset = std::numbers::pi;
 constexpr double kRearRightChassisAngularOffset = std::numbers::pi / 2;
 
 // SPARK MAX CAN IDs
-constexpr int kFrontLeftDrivingCanId = 11;
-constexpr int kRearLeftDrivingCanId = 13;
-constexpr int kFrontRightDrivingCanId = 15;
-constexpr int kRearRightDrivingCanId = 17;
+constexpr int kFrontLeftDrivingCanId = 16;
+constexpr int kRearLeftDrivingCanId = 4;
+constexpr int kFrontRightDrivingCanId = 12;
+constexpr int kRearRightDrivingCanId = 13;
 
-constexpr int kFrontLeftTurningCanId = 10;
-constexpr int kRearLeftTurningCanId = 12;
-constexpr int kFrontRightTurningCanId = 14;
-constexpr int kRearRightTurningCanId = 16;
+constexpr int kFrontLeftTurningCanId = 15;
+constexpr int kRearLeftTurningCanId = 18;
+constexpr int kFrontRightTurningCanId = 11;
+constexpr int kRearRightTurningCanId = 14;
 }  // namespace DriveConstants
 
 namespace ModuleConstants {

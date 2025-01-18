@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <frc/XboxController.h>
+#include <frc/Joystick.h>
 #include <frc/controller/PIDController.h>
 #include <frc/controller/ProfiledPIDController.h>
 #include <frc/smartdashboard/SendableChooser.h>
@@ -32,7 +32,7 @@ class RobotContainer {
 
  private:
   // The driver's controller
-  frc::XboxController m_driverController{OIConstants::kDriverControllerPort};
+  frc::Joystick m_driverController{OIConstants::kDriverControllerPort};
 
   // The robot's subsystems and commands are defined here...
 
