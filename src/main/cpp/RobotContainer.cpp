@@ -46,14 +46,10 @@ RobotContainer::RobotContainer() {
             -units::radians_per_second_t{frc::ApplyDeadband(
                 m_driverController.GetRawAxis(3), OIConstants::kDriveDeadband)},
             true);
+            frc::SmartDashboard::PutNumber("Gyro yaw", m_drive.GetHeading().value());
       },
       {&m_drive}));
 
-    frc2::RunCommand(
-        [this] {
-            frc::SmartDashboard::PutNumber("Gyro yaw", m_drive.GetHeading().value());
-        },
-        {&m_drive}).Repeatedly();
 }
 
 void RobotContainer::ConfigureButtonBindings() {
