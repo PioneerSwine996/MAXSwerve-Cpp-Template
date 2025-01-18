@@ -101,8 +101,7 @@ void DriveSubsystem::ResetEncoders() {
 }
 
 units::degree_t DriveSubsystem::GetHeading(){
-  return frc::Rotation2d(
-             units::degree_t{m_gyro.GetAngle()});
+  return units::degree_t{m_gyro.GetAngle()};
 }
 
 void DriveSubsystem::ZeroHeading() { m_gyro.Reset(); }
