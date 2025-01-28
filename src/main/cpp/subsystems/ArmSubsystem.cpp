@@ -17,4 +17,9 @@ int ArmSubsystem::atlimitswitch() {
 
 double ArmSubsystem::getActuator_Angle() {
     return ActuatorEncoder.GetPosition();
+
+}
+void ArmSubsystem::set(double Actuator_Angle, double Chain_Motor) {
+    Actuator.Set(Actuator_Angle);
+    Rotation.Set(Chain_Motor);
 }

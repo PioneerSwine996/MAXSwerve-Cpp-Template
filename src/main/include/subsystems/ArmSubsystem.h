@@ -16,12 +16,12 @@ class ArmSubsystem : public frc2::SubsystemBase {
  public:
   ArmSubsystem();
 
-  void Periodic() override;
+  // void Periodic() override;
 
-  void setPosition(double Actuator_Angle, double Chain_Motor);
+  // void setPosition(double Actuator_Angle, double Chain_Motor);
   void set(double Actuator_Angle, double Chain_Motor);
     double getActuator_Angle();
-    double getChain_Motor();
+  // double getChain_Motor();
     int atlimitswitch();
  private:
    SparkMax Rotation;

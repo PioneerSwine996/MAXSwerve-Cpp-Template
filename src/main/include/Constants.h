@@ -104,5 +104,5 @@ namespace ArmConstants{
     constexpr int kRotationId = 17;
     constexpr int kLimitSwitch = 0;
     constexpr double kActuatorMaxOutput = 0.3;
-    constexpr double kRotationId = 0.3;
+    constexpr double kRotationOutput = 0.3;
 }
