@@ -97,3 +97,12 @@ namespace OIConstants {
 constexpr int kDriverControllerPort = 0;
 constexpr double kDriveDeadband = 0.05;
 }  // namespace OIConstants
+
+namespace ArmConstants{
+    constexpr int kWheelId = 2;
+    constexpr int kActuatorId = 3;
+    constexpr int kRotationId = 17;
+    constexpr int kLimitSwitch = 0;
+    constexpr double kActuatorMaxOutput = 0.3;
+    constexpr double kRotationId = 0.3;
+}
