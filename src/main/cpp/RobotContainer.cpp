@@ -22,6 +22,7 @@
 
 #include "Constants.h"
 #include "subsystems/DriveSubsystem.h"
+#include "subsystems/ArmSubsystem.h"
 
 
 
@@ -50,11 +51,24 @@ RobotContainer::RobotContainer() {
       },
       {&m_drive}));
 
+
+  m_arm.SetDefaultCommand(frc2::RunCommand(
+    [this] {
+        frc::SmartDashboard::PutNumber("At limit switch", m_arm.atlimitswitch());
+        frc::SmartDashboard::PutNumber("Actuator Encoder", m_arm.getActuator_Angle());
+    },
+    {&m_arm}
+  ));
+
 }
 
 void RobotContainer::ConfigureButtonBindings() {
   frc2::JoystickButton(&m_driverController,1)
       .WhileTrue(new frc2::RunCommand([this] { m_drive.SetX(); }, {&m_drive}));
+  frc2::JoystickButton(&m_driverController, 3)
+      .WhileTrue(new frc2::RunCommand([this] { m_arm.set(-0.3, 0);}, {&m_arm}));
+  frc2::JoystickButton(&m_driverController, 4)
+      .WhileTrue(new frc2::RunCommand([this] { m_arm.set(0.3, 0);}, {&m_arm}));
 }
 
 frc2::Command* RobotContainer::GetAutonomousCommand() {

@@ -8,6 +8,7 @@
 #include <rev/SparkClosedLoopController.h>
 #include <rev/SparkMax.h>
 #include <rev/SparkRelativeEncoder.h>
+#include <frc/DigitalInput.h>
 
 using namespace rev::spark;
 
@@ -25,7 +26,8 @@ class ArmSubsystem : public frc2::SubsystemBase {
  private:
    SparkMax Rotation;
    SparkMax Actuator;
-   SparkRelativeEncoder m_drivingEncoder = Rotation.GetEncoder();
-   SparkAbsoluteEncoder m_turningAbsoluteEncoder =
-      Actuator.GetAbsoluteEncoder();
+   frc::DigitalInput LimitSwitch;
+   SparkAbsoluteEncoder RotationEncoder = Rotation.GetAbsoluteEncoder();
+   SparkRelativeEncoder ActuatorEncoder =
+      Actuator.GetEncoder();
 };
