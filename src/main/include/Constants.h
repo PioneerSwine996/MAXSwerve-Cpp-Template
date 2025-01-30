@@ -100,8 +100,8 @@ constexpr double kDriveDeadband = 0.05;
 
 namespace ArmConstants{
     constexpr int kWheelId = 2;
-    constexpr int kActuatorId = 3;
-    constexpr int kRotationId = 17;
+    constexpr int kActuatorId = 17;
+    constexpr int kRotationId = 3;
     constexpr int kLimitSwitch = 0;
     constexpr double kActuatorMaxOutput = 0.3;
     constexpr double kRotationOutput = 0.3;
