@@ -22,8 +22,10 @@ double ArmSubsystem::getActuator_Angle() {
     return ActuatorEncoder.GetPosition();
 
 }
-void ArmSubsystem::set(double Actuator_Angle, double Chain_Motor) {
+void ArmSubsystem::setActuator(double Actuator_Angle) {
     Actuator.Set(Actuator_Angle);
+}
+void ArmSubsystem::setChain_Motor(double Chain_Motor){
     Rotation.Set(Chain_Motor);
 }
 void ArmSubsystem::setWheel(double Wheel_Speed){

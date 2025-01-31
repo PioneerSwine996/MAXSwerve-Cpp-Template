@@ -67,25 +67,20 @@ void RobotContainer::ConfigureButtonBindings() {
       .WhileTrue(new frc2::RunCommand([this] { m_drive.SetX(); }, {&m_drive}));
 
   frc2::JoystickButton(&m_driverController, 3)
-      .OnTrue(new frc2::RunCommand([this] { m_arm.set(-0.3, 0);}, {&m_arm}))
-      .OnFalse(new frc2::RunCommand([this] { m_arm.set(0, 0);}, {&m_arm}));
-/*
+      .OnTrue(new frc2::RunCommand([this] { m_arm.setActuator(-0.3);}, {&m_arm}))
+      .OnFalse(new frc2::RunCommand([this] { m_arm.setActuator(0);}, {&m_arm}));
   frc2::JoystickButton(&m_driverController, 4)
-      .WhileTrue(new frc2::RunCommand([this] { m_arm.set(0.3, 0);}, {&m_arm}));
-  frc2::JoystickButton(&m_driverController, 4)
-      .WhileFalse(new frc2::RunCommand([this] { m_arm.set(0, 0);}, {&m_arm}));
+      .OnTrue(new frc2::RunCommand([this] { m_arm.setActuator(0.3);}, {&m_arm}))
+      .OnFalse(new frc2::RunCommand([this] { m_arm.setActuator(0);}, {&m_arm}));
   frc2::JoystickButton(&m_driverController, 2)
-      .WhileTrue(new frc2::RunCommand([this] {m_arm.setWheel(0.3);}, {&m_arm}));
-  frc2::JoystickButton(&m_driverController, 2)
-      .WhileFalse(new frc2::RunCommand([this] {m_arm.setWheel(0);}, {&m_arm}));
+      .OnTrue(new frc2::RunCommand([this] {m_arm.setWheel(0.3);}, {&m_arm}))
+      .OnFalse(new frc2::RunCommand([this] {m_arm.setWheel(0);}, {&m_arm}));
   frc2::JoystickButton(&m_driverController, 5)
-      .WhileTrue(new frc2::RunCommand([this] { m_arm.set(0, -0.3);}, {&m_arm}));
-  frc2::JoystickButton(&m_driverController, 5)
-      .WhileFalse(new frc2::RunCommand([this] { m_arm.set(0, 0);}, {&m_arm}));
+      .OnTrue(new frc2::RunCommand([this] { m_arm.setChain_Motor(-0.3);}, {&m_arm}))
+      .OnFalse(new frc2::RunCommand([this] { m_arm.setChain_Motor(0);}, {&m_arm}));
   frc2::JoystickButton(&m_driverController, 6)
-      .WhileTrue(new frc2::RunCommand([this] { m_arm.set(0, 0.3);}, {&m_arm}));
-  frc2::JoystickButton(&m_driverController, 6)
-      .WhileFalse(new frc2::RunCommand([this] { m_arm.set(0, 0);}, {&m_arm}));*/
+      .OnTrue(new frc2::RunCommand([this] { m_arm.setChain_Motor(0.3);}, {&m_arm}))
+      .OnFalse(new frc2::RunCommand([this] { m_arm.setChain_Motor(0);}, {&m_arm}));
 
 }
 
