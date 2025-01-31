@@ -65,10 +65,11 @@ RobotContainer::RobotContainer() {
 void RobotContainer::ConfigureButtonBindings() {
   frc2::JoystickButton(&m_driverController,1)
       .WhileTrue(new frc2::RunCommand([this] { m_drive.SetX(); }, {&m_drive}));
+
   frc2::JoystickButton(&m_driverController, 3)
-      .WhileTrue(new frc2::RunCommand([this] { m_arm.set(-0.3, 0);}, {&m_arm}));
-  frc2::JoystickButton(&m_driverController, 3)
-      .WhileFalse(new frc2::RunCommand([this] { m_arm.set(0, 0);}, {&m_arm}));
+      .OnTrue(new frc2::RunCommand([this] { m_arm.set(-0.3, 0);}, {&m_arm}))
+      .OnFalse(new frc2::RunCommand([this] { m_arm.set(0, 0);}, {&m_arm}));
+/*
   frc2::JoystickButton(&m_driverController, 4)
       .WhileTrue(new frc2::RunCommand([this] { m_arm.set(0.3, 0);}, {&m_arm}));
   frc2::JoystickButton(&m_driverController, 4)
@@ -84,7 +85,7 @@ void RobotContainer::ConfigureButtonBindings() {
   frc2::JoystickButton(&m_driverController, 6)
       .WhileTrue(new frc2::RunCommand([this] { m_arm.set(0, 0.3);}, {&m_arm}));
   frc2::JoystickButton(&m_driverController, 6)
-      .WhileFalse(new frc2::RunCommand([this] { m_arm.set(0, 0);}, {&m_arm}));
+      .WhileFalse(new frc2::RunCommand([this] { m_arm.set(0, 0);}, {&m_arm}));*/
 
 }
 
