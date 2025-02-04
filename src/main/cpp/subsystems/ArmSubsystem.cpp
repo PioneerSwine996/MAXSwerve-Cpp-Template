@@ -11,7 +11,7 @@ ArmSubsystem::ArmSubsystem()
       Rotation{kRotationId, SparkMax::MotorType::kBrushless},
       Wheel{kWheelId},
       LimitSwitch{kLimitSwitch} {
-    //
+        ActuatorEncoder.SetPosition(0);
 }
 
 int ArmSubsystem::atlimitswitch() {
