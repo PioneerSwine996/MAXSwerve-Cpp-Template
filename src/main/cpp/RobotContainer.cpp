@@ -56,6 +56,7 @@ RobotContainer::RobotContainer() {
     [this] {
         frc::SmartDashboard::PutNumber("At limit switch", m_arm.atlimitswitch());
         frc::SmartDashboard::PutNumber("Actuator Encoder", m_arm.getActuator_Angle());
+        frc::SmartDashboard::PutNumber("Rotation Encoder", m_arm.getRotation_Encoder());
     },
     {&m_arm}
   ));

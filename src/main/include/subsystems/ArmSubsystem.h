@@ -31,6 +31,7 @@ class ArmSubsystem : public frc2::SubsystemBase {
 
   void setActuator(double Actuator_Angle);
   double getActuator_Angle();
+  double getRotation_Encoder();
 
  private:
   SparkMax Rotation;

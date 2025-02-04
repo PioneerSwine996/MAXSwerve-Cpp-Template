@@ -22,6 +22,11 @@ double ArmSubsystem::getActuator_Angle() {
     return ActuatorEncoder.GetPosition();
 
 }
+
+double ArmSubsystem::getRotation_Encoder() {
+    return RotationEncoder.GetPosition();
+}
+
 void ArmSubsystem::setActuator(double Actuator_Angle) {
     Actuator.Set(Actuator_Angle);
 }
