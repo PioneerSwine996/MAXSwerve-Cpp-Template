@@ -7,8 +7,8 @@ using namespace rev::spark;
 using namespace ctre::phoenix::motorcontrol;
 
 ArmSubsystem::ArmSubsystem()
-    : Actuator{kActuatorId, SparkMax::MotorType::kBrushless},
-      Rotation{kRotationId, SparkMax::MotorType::kBrushless},
+    : Rotation{kRotationId, SparkMax::MotorType::kBrushless},
+      Actuator{kActuatorId, SparkMax::MotorType::kBrushless},
       Wheel{kWheelId},
       LimitSwitch{kLimitSwitch} {
         ActuatorEncoder.SetPosition(0);
