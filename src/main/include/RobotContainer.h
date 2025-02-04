@@ -28,6 +28,7 @@
 class RobotContainer {
  public:
   RobotContainer();
+  ArmSubsystem m_arm;
 
   frc2::Command* GetAutonomousCommand();
 
@@ -39,7 +40,7 @@ class RobotContainer {
 
   // The robot's subsystems
   DriveSubsystem m_drive;
-  ArmSubsystem m_arm;
+
 
   // The chooser for the autonomous routines
   frc::SendableChooser<frc2::Command*> m_chooser;
