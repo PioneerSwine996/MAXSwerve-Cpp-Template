@@ -3,7 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 #include "Robot.h"
-#include "subsystems/ArmSubsystem.h"
+// #include "subsystems/ArmSubsystem.h"
 
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <frc2/command/CommandScheduler.h>
@@ -59,7 +59,7 @@ void Robot::TeleopInit() {
  * This function is called periodically during operator control.
  */
 void Robot::TeleopPeriodic() {
-  frc::SmartDashboard::PutNumber("Actuator Encoder", m_container.m_arm.getActuator_Angle());
+  // frc::SmartDashboard::PutNumber("Actuator Encoder", m_container.m_arm.getActuator_Angle());
 }
 
 
