@@ -80,9 +80,9 @@ constexpr double kDriveWheelFreeSpeedRps =
 }  // namespace ModuleConstants
 
 namespace AutoConstants {
-constexpr auto kMaxSpeed = 1_mps;
-constexpr auto kMaxAcceleration = 1_mps_sq;
-constexpr auto kMaxAngularSpeed = 1_rad_per_s;
+constexpr auto kMaxSpeed = 3.14_mps;
+constexpr auto kMaxAcceleration = 3.14_mps_sq;
+constexpr auto kMaxAngularSpeed = 3.14_rad_per_s;
 constexpr auto kMaxAngularAcceleration = 1_rad_per_s_sq;
 
 constexpr double kPXController = 0.5;
@@ -95,7 +95,8 @@ extern const frc::TrapezoidProfile<units::radians>::Constraints
 
 namespace OIConstants {
 constexpr int kDriverControllerPort = 0;
-constexpr double kDriveDeadband = 0.05;
+constexpr double kDriveDeadband = 0.3;
+constexpr double kDeadband = 0.1;
 }  // namespace OIConstants
 
 namespace ArmConstants{

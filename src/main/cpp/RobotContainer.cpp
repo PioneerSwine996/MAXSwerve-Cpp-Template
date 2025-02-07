@@ -41,12 +41,12 @@ RobotContainer::RobotContainer() {
       [this] {
         m_drive.Drive(
             units::meters_per_second_t{frc::ApplyDeadband(
-                m_driverController.GetY(), OIConstants::kDriveDeadband)},
+                m_driverController.GetY(), OIConstants::kDeadband)},
             units::meters_per_second_t{frc::ApplyDeadband(
-                m_driverController.GetX(), OIConstants::kDriveDeadband)},
+                m_driverController.GetX(), OIConstants::kDeadband)},
             units::radians_per_second_t{frc::ApplyDeadband(
                 m_driverController.GetRawAxis(3), OIConstants::kDriveDeadband)},
-            false);
+            true);
             frc::SmartDashboard::PutNumber("Gyro yaw", m_drive.GetHeading().value());
       },
       {&m_drive}));
@@ -74,7 +74,7 @@ void RobotContainer::ConfigureButtonBindings() {
       .OnTrue(new frc2::RunCommand([this] { m_arm.setActuator(0.3);}, {&m_arm}))
       .OnFalse(new frc2::RunCommand([this] { m_arm.setActuator(0);}, {&m_arm}));
   frc2::JoystickButton(&m_driverController, 2)
-      .OnTrue(new frc2::RunCommand([this] {m_arm.setWheel(0.3);}, {&m_arm}))
+      .OnTrue(new frc2::RunCommand([this] {m_arm.setWheel(1);}, {&m_arm}))
       .OnFalse(new frc2::RunCommand([this] {m_arm.setWheel(0);}, {&m_arm}));
   frc2::JoystickButton(&m_driverController, 5)
       .OnTrue(new frc2::RunCommand([this] { m_arm.setChain_Motor(-0.3);}, {&m_arm}))
