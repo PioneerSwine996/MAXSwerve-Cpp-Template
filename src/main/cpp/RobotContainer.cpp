@@ -4,6 +4,8 @@
 
 #include "RobotContainer.h"
 
+#include <iostream>
+
 #include <frc/controller/PIDController.h>
 #include <frc/geometry/Translation2d.h>
 #include <frc/shuffleboard/Shuffleboard.h>
@@ -54,9 +56,12 @@ RobotContainer::RobotContainer() {
 
   m_arm.SetDefaultCommand(frc2::RunCommand(
     [this] {
-        frc::SmartDashboard::PutNumber("At limit switch", m_arm.atlimitswitch());
-        frc::SmartDashboard::PutNumber("Actuator Encoder", m_arm.getActuator_Angle());
-        frc::SmartDashboard::PutNumber("Rotation Encoder", m_arm.getRotation_Encoder());
+        // frc::SmartDashboard::PutNumber("At limit switch", m_arm.atlimitswitch());
+        // frc::SmartDashboard::PutNumber("Actuator Encoder", m_arm.getActuator_Angle());
+        // frc::SmartDashboard::PutNumber("Rotation Encoder", m_arm.getRotation_Encoder());
+        std::cout << "Limit Switch" << m_arm.atlimitswitch() << std::endl;
+        std::cout << "Actuator Angle" << m_arm.getActuator_Angle() << std::endl;
+        std::cout << "Rotation Encoder" << m_arm.getRotation_Encoder() << std::endl;
     },
     {&m_arm}
   ));
