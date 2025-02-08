@@ -1,5 +1,7 @@
 #include "subsystems/ArmSubsystem.h"
 #include "Constants.h"
+#include <frc/smartdashboard/SmartDashboard.h>
+
 
 using namespace ArmConstants;
 
@@ -35,4 +37,10 @@ void ArmSubsystem::setChain_Motor(double Chain_Motor){
 }
 void ArmSubsystem::setWheel(double Wheel_Speed){
     Wheel.Set(ControlMode::PercentOutput, Wheel_Speed);
+}
+
+void ArmSubsystem::Periodic() noexcept {
+    frc::SmartDashboard::PutNumber("At limit switch", atlimitswitch());
+    frc::SmartDashboard::PutNumber("Actuator Encoder", getActuator_Angle());
+    frc::SmartDashboard::PutNumber("Rotation Encoder", getRotation_Encoder());       
 }

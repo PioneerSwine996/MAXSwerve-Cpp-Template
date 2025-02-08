@@ -33,6 +33,8 @@ class ArmSubsystem : public frc2::SubsystemBase {
   double getActuator_Angle();
   double getRotation_Encoder();
 
+  void Periodic() noexcept override;
+
  private:
   SparkMax Rotation;
   SparkMax Actuator;
