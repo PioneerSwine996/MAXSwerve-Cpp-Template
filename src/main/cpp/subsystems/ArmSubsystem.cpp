@@ -46,19 +46,19 @@ void ArmSubsystem::Periodic() noexcept {
 }
 
 frc2::CommandPtr ArmSubsystem::zero_arm() {
-    return frc2::cmd::Run(
+    return frc2::cmd::Sequence(frc2::cmd::Run(
         [this] {
-            setWheel(0.2);
+            setActuator(0.2);
         }
     ).Until(
         [this] {
             return atlimitswitch();
-        })
-    .AndThen([this] {
-        setWheel(-0.1);
+        }),
+    frc2::cmd::Run([this] {
+        setActuator(-0.1);
     })
-    .Until([this] {return !atlimitswitch();})
-    .AndThen([this] {
+    .Until([this] {return !atlimitswitch();}),
+    frc2::cmd::RunOnce([this] {
         ActuatorEncoder.SetPosition(0);
-     });
+     }));
 }
