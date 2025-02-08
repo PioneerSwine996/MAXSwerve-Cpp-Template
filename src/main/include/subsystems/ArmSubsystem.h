@@ -10,6 +10,8 @@
 #include <rev/SparkMax.h>
 #include <rev/SparkRelativeEncoder.h>
 
+#include <frc2/command/Commands.h>
+
 #include "Constants.h"
 
 using namespace rev::spark;
@@ -34,6 +36,8 @@ class ArmSubsystem : public frc2::SubsystemBase {
   double getRotation_Encoder();
 
   void Periodic() noexcept override;
+
+  frc2::CommandPtr zero_arm();
 
  private:
   SparkMax Rotation;

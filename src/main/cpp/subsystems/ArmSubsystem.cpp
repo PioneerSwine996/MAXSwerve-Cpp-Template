@@ -44,3 +44,21 @@ void ArmSubsystem::Periodic() noexcept {
     frc::SmartDashboard::PutNumber("Actuator Encoder", getActuator_Angle());
     frc::SmartDashboard::PutNumber("Rotation Encoder", getRotation_Encoder());       
 }
+
+frc2::CommandPtr ArmSubsystem::zero_arm() {
+    return frc2::cmd::Run(
+        [this] {
+            setWheel(0.2);
+        }
+    ).Until(
+        [this] {
+            return atlimitswitch();
+        })
+    .AndThen([this] {
+        setWheel(-0.1);
+    })
+    .Until([this] {return !atlimitswitch();})
+    .AndThen([this] {
+        ActuatorEncoder.SetPosition(0);
+     });
+}
