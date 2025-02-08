@@ -89,7 +89,7 @@ void RobotContainer::ConfigureButtonBindings() {
   frc2::JoystickButton(&m_driverController, 6)
       .WhileTrue(new frc2::RunCommand([this] { m_arm.setChain_Motor(0.3);}, {&m_arm}));
 
-    
+
 }
 
 frc2::Command* RobotContainer::GetAutonomousCommand() {
