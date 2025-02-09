@@ -38,6 +38,7 @@ class ArmSubsystem : public frc2::SubsystemBase {
   void Periodic() noexcept override;
 
   frc2::CommandPtr zero_arm();
+  frc2::CommandPtr level_three();
 
  private:
   SparkMax Rotation;

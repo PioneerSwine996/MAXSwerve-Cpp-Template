@@ -62,3 +62,20 @@ frc2::CommandPtr ArmSubsystem::zero_arm() {
         ActuatorEncoder.SetPosition(0);
      }));
 }
+
+frc2::CommandPtr ArmSubsystem::level_three() {
+    return frc2::cmd::Sequence(frc2::cmd::Run(
+        [this] {
+            setChain_Motor(-0.07);
+        }
+    ).Until(
+        [this] {
+            return getRotation_Encoder() == 0.1600;
+        }),
+    frc2::cmd::Run([this] {
+        setChain_Motor(0.02);
+    })
+    .Until([this] {
+        return getRotation_Encoder() == 0.1600;
+    }));
+}
