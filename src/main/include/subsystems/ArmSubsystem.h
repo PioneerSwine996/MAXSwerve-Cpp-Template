@@ -9,6 +9,7 @@
 #include <rev/SparkClosedLoopController.h>
 #include <rev/SparkMax.h>
 #include <rev/SparkRelativeEncoder.h>
+#include <frc/controller/PIDController.h>
 
 #include <frc2/command/Commands.h>
 
