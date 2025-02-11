@@ -47,12 +47,12 @@ void ArmSubsystem::Periodic() noexcept {
     frc::SmartDashboard::PutNumber("At limit switch", atlimitswitch());
     frc::SmartDashboard::PutNumber("Actuator Encoder", getActuator_Angle());
     frc::SmartDashboard::PutNumber("Rotation Encoder", getRotation_Encoder());
-    m_ActuatorFeedback.SetP(frc::SmartDashboard::GetNumber("P", 0));
-    m_ActuatorFeedback.SetI(frc::SmartDashboard::GetNumber("I", 0));
-    m_ActuatorFeedback.SetD(frc::SmartDashboard::GetNumber("D", 0));   
-    m_RotationFeedback.SetP(frc::SmartDashboard::GetNumber("P", 0));   
-    m_RotationFeedback.SetI(frc::SmartDashboard::GetNumber("I", 0));   
-    m_RotationFeedback.SetD(frc::SmartDashboard::GetNumber("D", 0));        
+    m_ActuatorFeedback.SetP(frc::SmartDashboard::GetNumber("Pa", 0));
+    m_ActuatorFeedback.SetI(frc::SmartDashboard::GetNumber("Ia", 0));
+    m_ActuatorFeedback.SetD(frc::SmartDashboard::GetNumber("Da", 0));   
+    m_RotationFeedback.SetP(frc::SmartDashboard::GetNumber("Pr", 0));   
+    m_RotationFeedback.SetI(frc::SmartDashboard::GetNumber("Ir", 0));   
+    m_RotationFeedback.SetD(frc::SmartDashboard::GetNumber("Dr", 0));        
 }
 
 frc2::CommandPtr ArmSubsystem::zero_arm() {
