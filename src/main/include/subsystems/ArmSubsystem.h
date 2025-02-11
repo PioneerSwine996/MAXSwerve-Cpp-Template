@@ -39,7 +39,7 @@ class ArmSubsystem : public frc2::SubsystemBase {
   void Periodic() noexcept override;
 
   frc2::CommandPtr zero_arm();
-  frc2::CommandPtr level_three();
+  frc2::CommandPtr to_position(double, double);
 
  private:
   SparkMax Rotation;
@@ -48,4 +48,6 @@ class ArmSubsystem : public frc2::SubsystemBase {
   frc::DigitalInput LimitSwitch;
   SparkAbsoluteEncoder RotationEncoder = Rotation.GetAbsoluteEncoder();
   SparkRelativeEncoder ActuatorEncoder = Actuator.GetEncoder();
+  frc::PIDController m_RotationFeedback{0.0, 0.0, 0.0};
+  frc::PIDController m_ActuatorFeedback{0.0, 0.0, 0.0};
 };

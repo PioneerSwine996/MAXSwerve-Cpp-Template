@@ -12,9 +12,13 @@ ArmSubsystem::ArmSubsystem()
     : Rotation{kRotationId, SparkMax::MotorType::kBrushless},
       Actuator{kActuatorId, SparkMax::MotorType::kBrushless},
       Wheel{kWheelId},
-      LimitSwitch{kLimitSwitch} {
+      LimitSwitch{kLimitSwitch}
+{
         ActuatorEncoder.SetPosition(0);
+          m_ActuatorFeedback.SetTolerance(0.01);
+          m_RotationFeedback.SetTolerance(0.01);
 }
+
 
 int ArmSubsystem::atlimitswitch() {
     return LimitSwitch.Get();
@@ -42,7 +46,13 @@ void ArmSubsystem::setWheel(double Wheel_Speed){
 void ArmSubsystem::Periodic() noexcept {
     frc::SmartDashboard::PutNumber("At limit switch", atlimitswitch());
     frc::SmartDashboard::PutNumber("Actuator Encoder", getActuator_Angle());
-    frc::SmartDashboard::PutNumber("Rotation Encoder", getRotation_Encoder());       
+    frc::SmartDashboard::PutNumber("Rotation Encoder", getRotation_Encoder());
+    m_ActuatorFeedback.SetP(frc::SmartDashboard::GetNumber("P", 0));
+    m_ActuatorFeedback.SetI(frc::SmartDashboard::GetNumber("I", 0));
+    m_ActuatorFeedback.SetD(frc::SmartDashboard::GetNumber("D", 0));   
+    m_RotationFeedback.SetP(frc::SmartDashboard::GetNumber("P", 0));   
+    m_RotationFeedback.SetI(frc::SmartDashboard::GetNumber("I", 0));   
+    m_RotationFeedback.SetD(frc::SmartDashboard::GetNumber("D", 0));        
 }
 
 frc2::CommandPtr ArmSubsystem::zero_arm() {
@@ -63,19 +73,18 @@ frc2::CommandPtr ArmSubsystem::zero_arm() {
      }));
 }
 
-frc2::CommandPtr ArmSubsystem::level_three() {
-    return frc2::cmd::Sequence(frc2::cmd::Run(
-        [this] {
-            setChain_Motor(-0.07);
-        }
-    ).Until(
-        [this] {
-            return getRotation_Encoder() == 0.1600;
-        }),
-    frc2::cmd::Run([this] {
-        setChain_Motor(0.02);
-    })
-    .Until([this] {
-        return getRotation_Encoder() == 0.1600;
-    }));
-}
+frc2::CommandPtr ArmSubsystem::to_position(double Actuator_Target, double Rotation_Target) {
+    return frc2::cmd::Parallel(
+             // Run the shooter flywheel at the desired setpoint using
+             // feedforward and feedback
+             Run([this, Actuator_Target, Rotation_Target] {
+               Actuator.SetVoltage(
+                //    m_shooterFeedforward.Calculate(setpoint) +
+                   units::volt_t(m_ActuatorFeedback.Calculate(
+                        getActuator_Angle(), Actuator_Target)));
+               Rotation.SetVoltage(
+                //    m_shooterFeedforward.Calculate(setpoint) +
+                   units::volt_t(m_RotationFeedback.Calculate(
+                        getRotation_Encoder(), Rotation_Target)));
+             }));
+    }
