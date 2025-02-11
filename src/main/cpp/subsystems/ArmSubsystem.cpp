@@ -17,7 +17,14 @@ ArmSubsystem::ArmSubsystem()
         ActuatorEncoder.SetPosition(0);
           m_ActuatorFeedback.SetTolerance(0.01);
           m_RotationFeedback.SetTolerance(0.01);
+    frc::SmartDashboard::PutNumber("Pa", 0);
+    frc::SmartDashboard::PutNumber("Ia", 0);
+    frc::SmartDashboard::PutNumber("Da", 0);   
+    frc::SmartDashboard::PutNumber("Pr", 0);   
+    frc::SmartDashboard::PutNumber("Ir", 0);   
+    frc::SmartDashboard::PutNumber("Dr", 0);  
 }
+
 
 
 int ArmSubsystem::atlimitswitch() {
