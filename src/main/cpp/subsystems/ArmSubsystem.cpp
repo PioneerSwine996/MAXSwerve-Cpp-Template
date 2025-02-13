@@ -17,12 +17,6 @@ ArmSubsystem::ArmSubsystem()
         ActuatorEncoder.SetPosition(0);
           m_ActuatorFeedback.SetTolerance(0.01);
           m_RotationFeedback.SetTolerance(0.01);
-    frc::SmartDashboard::PutNumber("Pa", 0);
-    frc::SmartDashboard::PutNumber("Ia", 0);
-    frc::SmartDashboard::PutNumber("Da", 0);   
-    frc::SmartDashboard::PutNumber("Pr", 0);   
-    frc::SmartDashboard::PutNumber("Ir", 0);   
-    frc::SmartDashboard::PutNumber("Dr", 0);  
 }
 
 
@@ -54,12 +48,6 @@ void ArmSubsystem::Periodic() noexcept {
     frc::SmartDashboard::PutNumber("At limit switch", atlimitswitch());
     frc::SmartDashboard::PutNumber("Actuator Encoder", getActuator_Angle());
     frc::SmartDashboard::PutNumber("Rotation Encoder", getRotation_Encoder());
-    m_ActuatorFeedback.SetP(frc::SmartDashboard::GetNumber("Pa", 0));
-    m_ActuatorFeedback.SetI(frc::SmartDashboard::GetNumber("Ia", 0));
-    m_ActuatorFeedback.SetD(frc::SmartDashboard::GetNumber("Da", 0));   
-    m_RotationFeedback.SetP(frc::SmartDashboard::GetNumber("Pr", 0));   
-    m_RotationFeedback.SetI(frc::SmartDashboard::GetNumber("Ir", 0));   
-    m_RotationFeedback.SetD(frc::SmartDashboard::GetNumber("Dr", 0));        
 }
 
 frc2::CommandPtr ArmSubsystem::zero_arm() {
@@ -85,13 +73,31 @@ frc2::CommandPtr ArmSubsystem::to_position(double Actuator_Target, double Rotati
              // Run the shooter flywheel at the desired setpoint using
              // feedforward and feedback
              Run([this, Actuator_Target, Rotation_Target] {
+                double Rotation_calc = m_RotationFeedback.Calculate(
+                        getRotation_Encoder(), Rotation_Target);
+                double Actuator_calc = m_ActuatorFeedback.Calculate(
+                        getActuator_Angle(), Actuator_Target);
+                if (Rotation_calc > 8)
+                    Rotation_calc = 8; 
+                if (Rotation_calc < -8)
+                    Rotation_calc = -8;
+                if (Actuator_calc > 4)
+                    Actuator_calc = 4; 
+                if (Actuator_calc < -4)
+                    Actuator_calc = -4;
+
+
+                frc::SmartDashboard::PutNumber("Rotation calc", Rotation_calc);
+
                Actuator.SetVoltage(
                 //    m_shooterFeedforward.Calculate(setpoint) +
-                   units::volt_t(m_ActuatorFeedback.Calculate(
-                        getActuator_Angle(), Actuator_Target)));
+                   units::volt_t(Actuator_calc));
                Rotation.SetVoltage(
                 //    m_shooterFeedforward.Calculate(setpoint) +
-                   units::volt_t(m_RotationFeedback.Calculate(
-                        getRotation_Encoder(), Rotation_Target)));
-             }));
+                   units::volt_t(Rotation_calc));
+             }).Until(
+                [this] {
+                    return m_ActuatorFeedback.AtSetpoint() && m_RotationFeedback.AtSetpoint();
+                }
+             ));
     }

@@ -48,6 +48,6 @@ class ArmSubsystem : public frc2::SubsystemBase {
   frc::DigitalInput LimitSwitch;
   SparkAbsoluteEncoder RotationEncoder = Rotation.GetAbsoluteEncoder();
   SparkRelativeEncoder ActuatorEncoder = Actuator.GetEncoder();
-  frc::PIDController m_RotationFeedback{0.0, 0.0, 0.0};
-  frc::PIDController m_ActuatorFeedback{0.0, 0.0, 0.0};
+  frc::PIDController m_RotationFeedback{40, 0.0, 0.0};
+  frc::PIDController m_ActuatorFeedback{3, 0.0, 0.0};
 };

@@ -51,7 +51,7 @@ RobotContainer::RobotContainer() {
                 m_driverController.GetX(), OIConstants::kDeadband)},
             units::radians_per_second_t{frc::ApplyDeadband(
                 -m_driverController.GetRawAxis(3), OIConstants::kDriveDeadband)},
-            true);
+            false);
             frc::SmartDashboard::PutNumber("Gyro yaw", m_drive.GetHeading().value());
       },
       {&m_drive}));
@@ -74,11 +74,16 @@ RobotContainer::RobotContainer() {
 
 }
 
+/*
+L3: 0, 0.09
+L2: 32, 0.22
+*/
+
 void RobotContainer::ConfigureButtonBindings() {
   frc2::JoystickButton(&m_driverController,1)
       .WhileTrue(new frc2::RunCommand([this] { m_drive.SetX(); }, {&m_drive}));
 
-  frc2::JoystickButton(&m_driverController, 3)
+  /*frc2::JoystickButton(&m_driverController, 3)
       .WhileTrue(new frc2::RunCommand([this] { m_arm.setActuator(-0.3);}, {&m_arm}));
   frc2::JoystickButton(&m_driverController, 4)
       .WhileTrue(new frc2::RunCommand([this] { m_arm.setActuator(0.3);}, {&m_arm}));
@@ -87,14 +92,24 @@ void RobotContainer::ConfigureButtonBindings() {
   frc2::JoystickButton(&m_driverController, 5)
       .WhileTrue(new frc2::RunCommand([this] { m_arm.setChain_Motor(-0.1);}, {&m_arm}));
   frc2::JoystickButton(&m_driverController, 6)
-      .WhileTrue(new frc2::RunCommand([this] { m_arm.setChain_Motor(0.1);}, {&m_arm}));
+      .WhileTrue(new frc2::RunCommand([this] { m_arm.setChain_Motor(0.1);}, {&m_arm}));*/
 
-  frc2::JoystickButton(&m_driverController, 7)
+  frc2::JoystickButton(&m_driverController, 2)
      .OnTrue(std::move(m_arm.zero_arm()));
-  frc2::JoystickButton(&m_driverController, 2) 
-     .OnTrue(std::move(m_arm.zero_arm()));
-  frc2::JoystickButton(&m_driverController, 2) 
-     .OnTrue(std::move(m_arm.to_position(0, 0.12)));
+
+  frc2::JoystickButton(&m_driverController, 3) 
+     .OnTrue(std::move(m_arm.to_position(0, 0.045)));
+
+     
+  frc2::JoystickButton(&m_driverController, 5) 
+     .OnTrue(std::move(m_arm.to_position(0, 0.22)));
+
+        frc2::JoystickButton(&m_driverController, 4)
+      .WhileTrue(new frc2::RunCommand([this] {m_arm.setWheel(-0.6);}, {&m_arm}));
+
+      
+        frc2::JoystickButton(&m_driverController, 6)
+      .WhileTrue(new frc2::RunCommand([this] {m_arm.setWheel(0.6);}, {&m_arm}));
 }
 
 frc2::Command* RobotContainer::GetAutonomousCommand() {
