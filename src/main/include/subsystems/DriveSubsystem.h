@@ -75,7 +75,7 @@ class DriveSubsystem : public frc2::SubsystemBase {
    *
    * @return The turn rate of the robot, in degrees per second
    */
-  double GetTurnRate();
+  double GetTurnRate() noexcept;
 
   /**
    * Returns the currently-estimated pose of the robot.

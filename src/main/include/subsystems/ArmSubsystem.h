@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <array>
+
 #include <ctre/phoenix/motorcontrol/can/VictorSPX.h>
 #include <frc/DigitalInput.h>
 #include <frc/filter/SlewRateLimiter.h>
@@ -18,10 +20,10 @@
 using namespace rev::spark;
 using namespace ctre::phoenix::motorcontrol::can;
 
+
 class ArmSubsystem : public frc2::SubsystemBase {
  public:
   ArmSubsystem();
-
   // void Periodic() override;
 
   // void setPosition(double Actuator_Angle, double Chain_Motor);
@@ -38,10 +40,15 @@ class ArmSubsystem : public frc2::SubsystemBase {
 
   void Periodic() noexcept override;
 
-  frc2::CommandPtr zero_arm();
-  frc2::CommandPtr to_position(double, double);
+  frc2::CommandPtr Raise();
+  frc2::CommandPtr Lower(); 
+
+  frc2::CommandPtr zero_arm(double rotation);
+  frc2::CommandPtr to_position();
 
  private:
+ bool zeroed = false;
+ int state = 1;
   SparkMax Rotation;
   SparkMax Actuator;
   VictorSPX Wheel;

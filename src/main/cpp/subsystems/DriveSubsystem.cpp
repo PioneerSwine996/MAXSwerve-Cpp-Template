@@ -106,8 +106,8 @@ units::degree_t DriveSubsystem::GetHeading(){
 
 void DriveSubsystem::ZeroHeading() { m_gyro.Reset(); }
 
-double DriveSubsystem::GetTurnRate() {
-  return m_gyro.GetRate();
+double DriveSubsystem::GetTurnRate() noexcept {
+  return m_gyro.GetRate() * 0.5;
 }
 
 frc::Pose2d DriveSubsystem::GetPose() { return m_odometry.GetPose(); }

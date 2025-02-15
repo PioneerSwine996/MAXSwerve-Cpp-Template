@@ -56,21 +56,10 @@ RobotContainer::RobotContainer() {
       },
       {&m_drive}));
 
-
-  m_arm.SetDefaultCommand(frc2::RunCommand(
-    [this] {
-        // frc::SmartDashboard::PutNumber("At limit switch", m_arm.atlimitswitch());
-        // frc::SmartDashboard::PutNumber("Actuator Encoder", m_arm.getActuator_Angle());
-        // frc::SmartDashboard::PutNumber("Rotation Encoder", m_arm.getRotation_Encoder());
-        
-        frc::SmartDashboard::PutNumber("time", std::difftime(std::time(0), start));
-
-        m_arm.setActuator(0.0);
-        m_arm.setChain_Motor(0.0);
-        m_arm.setWheel(0.0);
-    },
-    {&m_arm}
-  ));
+  m_arm.SetDefaultCommand(
+    frc2::cmd::Parallel(
+        m_arm.zero_arm(0.300).AndThen(m_arm.to_position()),
+        frc2::cmd::RunOnce([this] { m_arm.setWheel(0);})));
 
 }
 
@@ -83,26 +72,17 @@ void RobotContainer::ConfigureButtonBindings() {
   frc2::JoystickButton(&m_driverController,1)
       .WhileTrue(new frc2::RunCommand([this] { m_drive.SetX(); }, {&m_drive}));
 
-  /*frc2::JoystickButton(&m_driverController, 3)
-      .WhileTrue(new frc2::RunCommand([this] { m_arm.setActuator(-0.3);}, {&m_arm}));
-  frc2::JoystickButton(&m_driverController, 4)
-      .WhileTrue(new frc2::RunCommand([this] { m_arm.setActuator(0.3);}, {&m_arm}));
-//   frc2::JoystickButton(&m_driverController, 2)
-//       .WhileTrue(new frc2::RunCommand([this] {m_arm.setWheel(-0.6);}, {&m_arm}));
+  frc2::JoystickButton(&m_driverController, 3)
+    .OnTrue(std::move(m_arm.Raise()));
+
   frc2::JoystickButton(&m_driverController, 5)
-      .WhileTrue(new frc2::RunCommand([this] { m_arm.setChain_Motor(-0.1);}, {&m_arm}));
-  frc2::JoystickButton(&m_driverController, 6)
-      .WhileTrue(new frc2::RunCommand([this] { m_arm.setChain_Motor(0.1);}, {&m_arm}));*/
-
-  frc2::JoystickButton(&m_driverController, 2)
-     .OnTrue(std::move(m_arm.zero_arm()));
-
-  frc2::JoystickButton(&m_driverController, 3) 
-     .OnTrue(std::move(m_arm.to_position(0, 0.045)));
+    .OnTrue(std::move(m_arm.Lower()));
+//   frc2::JoystickButton(&m_driverController, 3) 
+//      .OnTrue(std::move(m_arm.to_position(0, 0.108)));
 
      
-  frc2::JoystickButton(&m_driverController, 5) 
-     .OnTrue(std::move(m_arm.to_position(0, 0.22)));
+//   frc2::JoystickButton(&m_driverController, 5) 
+//      .OnTrue(std::move(m_arm.to_position(0, 0.347)));
 
         frc2::JoystickButton(&m_driverController, 4)
       .WhileTrue(new frc2::RunCommand([this] {m_arm.setWheel(-0.6);}, {&m_arm}));
