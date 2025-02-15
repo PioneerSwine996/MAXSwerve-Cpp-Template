@@ -48,19 +48,11 @@ RobotContainer::RobotContainer() {
         double y = m_driverController.GetY();
         double x = m_driverController.GetX();
 
-        double angle_rads = -m_drive.GetHeading().value() * M_PI / 180.0;
-
-        double c = std::cos(angle_rads);
-        double s = std::sin(angle_rads);
-
-        double y_rot = c*y - s*x;
-        double x_rot = s*y + c*x;
-
         m_drive.Drive(
             units::meters_per_second_t{frc::ApplyDeadband(
-                y_rot, OIConstants::kDeadband)},
+                y, OIConstants::kDeadband)},
             units::meters_per_second_t{frc::ApplyDeadband(
-                x_rot, OIConstants::kDeadband)},
+                x, OIConstants::kDeadband)},
             units::radians_per_second_t{frc::ApplyDeadband(
                 -m_driverController.GetRawAxis(3), OIConstants::kDriveDeadband)},
             false);
