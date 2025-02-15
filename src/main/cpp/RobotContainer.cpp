@@ -58,8 +58,7 @@ RobotContainer::RobotContainer() {
 
   m_arm.SetDefaultCommand(
     frc2::cmd::Parallel(
-        m_arm.zero_arm(0.300).AndThen(m_arm.to_position()),
-        frc2::cmd::RunOnce([this] { m_arm.setWheel(0);})));
+        m_arm.zero_arm(0.300).AndThen(m_arm.to_position());
 
 }
 
@@ -85,11 +84,13 @@ void RobotContainer::ConfigureButtonBindings() {
 //      .OnTrue(std::move(m_arm.to_position(0, 0.347)));
 
         frc2::JoystickButton(&m_driverController, 4)
-      .WhileTrue(new frc2::RunCommand([this] {m_arm.setWheel(-0.6);}, {&m_arm}));
+      .WhileTrue(new frc2::RunCommand([this] {m_arm.setWheel(-0.6);}, {&m_arm}))
+      .OnFalse(new frc2::RunCommand([this] {m_arm.setWheel(0);}, {&m_arm}));
 
       
         frc2::JoystickButton(&m_driverController, 6)
-      .WhileTrue(new frc2::RunCommand([this] {m_arm.setWheel(0.6);}, {&m_arm}));
+      .WhileTrue(new frc2::RunCommand([this] {m_arm.setWheel(0.6);}, {&m_arm}))
+      .OnFalse(new frc2::RunCommand([this] {m_arm.setWheel(0);}, {&m_arm}));
 }
 
 frc2::Command* RobotContainer::GetAutonomousCommand() {
