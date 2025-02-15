@@ -27,6 +27,7 @@
 #include "subsystems/ArmSubsystem.h"
 
 #include <ctime>
+#include <cmath>
 
 time_t start;
 
@@ -44,14 +45,25 @@ RobotContainer::RobotContainer() {
   // Turning is controlled by the X axis of the right stick.
   m_drive.SetDefaultCommand(frc2::RunCommand(
       [this] {
+        double y = m_driverController.GetY();
+        double x = m_driverController.GetX();
+
+        double angle_rads = -m_drive.GetHeading().value() * M_PI / 180.0;
+
+        double c = std::cos(angle_rads);
+        double s = std::sin(angle_rads);
+
+        double y_rot = c*y - s*x;
+        double x_rot = s*y + c*x;
+
         m_drive.Drive(
             units::meters_per_second_t{frc::ApplyDeadband(
-                m_driverController.GetY(), OIConstants::kDeadband)},
+                y_rot, OIConstants::kDeadband)},
             units::meters_per_second_t{frc::ApplyDeadband(
-                m_driverController.GetX(), OIConstants::kDeadband)},
+                x_rot, OIConstants::kDeadband)},
             units::radians_per_second_t{frc::ApplyDeadband(
                 -m_driverController.GetRawAxis(3), OIConstants::kDriveDeadband)},
-            true);
+            false);
             frc::SmartDashboard::PutNumber("Gyro yaw", m_drive.GetHeading().value());
       },
       {&m_drive}));
@@ -69,6 +81,8 @@ L2: 32, 0.22
 void RobotContainer::ConfigureButtonBindings() {
   frc2::JoystickButton(&m_driverController,1)
       .WhileTrue(new frc2::RunCommand([this] { m_drive.SetX(); }, {&m_drive}));
+
+
 
   frc2::JoystickButton(&m_driverController, 3)
     .OnTrue(std::move(m_arm.Raise()));

@@ -101,13 +101,20 @@ void DriveSubsystem::ResetEncoders() {
 }
 
 units::degree_t DriveSubsystem::GetHeading(){
-  return units::degree_t{m_gyro.GetAngle()};
+  auto heading = units::degree_t{-m_gyro.GetAngle()};
+  while (heading.value() > 360) {
+    heading -= units::degree_t{360};
+  }
+  while (heading.value() < 0) {
+    heading += units::degree_t{360};
+  }
+  return heading;
 }
 
 void DriveSubsystem::ZeroHeading() { m_gyro.Reset(); }
 
 double DriveSubsystem::GetTurnRate() noexcept {
-  return m_gyro.GetRate() * 0.5;
+  return m_gyro.GetRate();
 }
 
 frc::Pose2d DriveSubsystem::GetPose() { return m_odometry.GetPose(); }
