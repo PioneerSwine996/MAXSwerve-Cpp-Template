@@ -64,6 +64,10 @@ frc2::CommandPtr ArmSubsystem::zero_arm(double rotation) {
             [this, rotation] {
                 return getRotation_Encoder() > rotation;
             }
+        ).AndThen(
+            [this] {
+                setChain_Motor(0.0);
+            }
         ), frc2::cmd::Run(
         [this] {
             setActuator(0.2);
