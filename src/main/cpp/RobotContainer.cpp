@@ -58,8 +58,7 @@ RobotContainer::RobotContainer() {
 
   m_arm.SetDefaultCommand(
     frc2::cmd::Parallel(
-        m_arm.zero_arm(0.300).AndThen(m_arm.to_position());
-
+        m_arm.zero_arm(0.300).AndThen(m_arm.to_position())));
 }
 
 /*
