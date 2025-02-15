@@ -17,6 +17,7 @@
 #include "Constants.h"
 #include "subsystems/DriveSubsystem.h"
 #include "subsystems/ArmSubsystem.h"
+#include "subsystems/VisionSubsystem.h"
 
 /**
  * This class is where the bulk of the robot should be declared.  Since
@@ -29,6 +30,7 @@ class RobotContainer {
  public:
   RobotContainer();
   ArmSubsystem m_arm;
+  VisionSubsystem m_vision;
 
   frc2::Command* GetAutonomousCommand();
 

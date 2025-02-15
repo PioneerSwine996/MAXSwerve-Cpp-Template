@@ -72,6 +72,14 @@ RobotContainer::RobotContainer() {
     frc2::cmd::Parallel(
         m_arm.zero_arm(0.250).AndThen(m_arm.to_position())));
         m_arm.setWheel(-0.05);
+
+    m_vision.SetDefaultCommand(
+        frc2::cmd::RunOnce([this] {
+            frc::SmartDashboard::PutNumber("tx", m_vision.GetX());
+            frc::SmartDashboard::PutNumber("ty", m_vision.GetY());
+            frc::SmartDashboard::PutNumber("ry", m_vision.GetYaw());
+        })
+    );
 }
 
 /*
