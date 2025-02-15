@@ -47,23 +47,6 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
                            units::radians_per_second_t rot,
                            bool fieldRelative) {
   // Convert the commanded speeds into the correct units for the drivetrain
-
-    if (fieldRelative) {
-      double x = xSpeed.value();
-      double y = ySpeed.value();
-
-      double angle_rads = -GetHeading().value() * M_PI / 180.0;
-
-      double c = std::cos(angle_rads);
-      double s = std::sin(angle_rads);
-
-      double y_rot = c*y - s*x;
-      double x_rot = s*y + c*x;
-
-      xSpeed = units::meters_per_second_t{x_rot};
-      ySpeed = units::meters_per_second_t{y_rot};
-    }
-
   units::meters_per_second_t xSpeedDelivered =
       xSpeed.value() * DriveConstants::kMaxSpeed;
   units::meters_per_second_t ySpeedDelivered =
@@ -72,7 +55,12 @@ void DriveSubsystem::Drive(units::meters_per_second_t xSpeed,
       rot.value() * DriveConstants::kMaxAngularSpeed;
 
   auto states = kDriveKinematics.ToSwerveModuleStates(
-     frc::ChassisSpeeds{xSpeedDelivered, ySpeedDelivered, rotDelivered});
+      fieldRelative
+          ? frc::ChassisSpeeds::FromFieldRelativeSpeeds(
+                xSpeedDelivered, ySpeedDelivered, rotDelivered,
+                frc::Rotation2d(units::radian_t{
+                    m_gyro.GetAngle()}))
+          : frc::ChassisSpeeds{xSpeedDelivered, ySpeedDelivered, rotDelivered});
 
   kDriveKinematics.DesaturateWheelSpeeds(&states, DriveConstants::kMaxSpeed);
 

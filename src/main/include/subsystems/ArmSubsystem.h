@@ -48,7 +48,7 @@ class ArmSubsystem : public frc2::SubsystemBase {
 
  private:
  bool zeroed = false;
- int state = 1;
+ int state = 0;
   SparkMax Rotation;
   SparkMax Actuator;
   VictorSPX Wheel;

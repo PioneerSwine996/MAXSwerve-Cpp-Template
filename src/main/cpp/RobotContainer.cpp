@@ -48,11 +48,19 @@ RobotContainer::RobotContainer() {
         double y = m_driverController.GetY();
         double x = m_driverController.GetX();
 
+        double angle_rads = -m_drive.GetHeading().value() * M_PI / 180.0;
+
+        double c = std::cos(angle_rads);
+        double s = std::sin(angle_rads);
+
+        double y_rot = c*y - s*x;
+        double x_rot = s*y + c*x;
+
         m_drive.Drive(
             units::meters_per_second_t{frc::ApplyDeadband(
-                y, OIConstants::kDeadband)},
+                y_rot, OIConstants::kDeadband)},
             units::meters_per_second_t{frc::ApplyDeadband(
-                x, OIConstants::kDeadband)},
+                x_rot, OIConstants::kDeadband)},
             units::radians_per_second_t{frc::ApplyDeadband(
                 -m_driverController.GetRawAxis(3), OIConstants::kDriveDeadband)},
             false);
@@ -62,7 +70,8 @@ RobotContainer::RobotContainer() {
 
   m_arm.SetDefaultCommand(
     frc2::cmd::Parallel(
-        m_arm.zero_arm(0.300).AndThen(m_arm.to_position())));
+        m_arm.zero_arm(0.250).AndThen(m_arm.to_position())));
+        m_arm.setWheel(-0.05);
 }
 
 /*
@@ -90,12 +99,12 @@ void RobotContainer::ConfigureButtonBindings() {
 
         frc2::JoystickButton(&m_driverController, 4)
       .WhileTrue(new frc2::RunCommand([this] {m_arm.setWheel(-0.6);}, {&m_arm}))
-      .OnFalse(new frc2::RunCommand([this] {m_arm.setWheel(0);}, {&m_arm}));
+      .OnFalse(new frc2::RunCommand([this] {m_arm.setWheel(-0.05);}, {&m_arm}));
 
       
         frc2::JoystickButton(&m_driverController, 6)
       .WhileTrue(new frc2::RunCommand([this] {m_arm.setWheel(0.6);}, {&m_arm}))
-      .OnFalse(new frc2::RunCommand([this] {m_arm.setWheel(0);}, {&m_arm}));
+      .OnFalse(new frc2::RunCommand([this] {m_arm.setWheel(-0.05);}, {&m_arm}));
 }
 
 frc2::Command* RobotContainer::GetAutonomousCommand() {
@@ -110,9 +119,9 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
       // Start at the origin facing the +X direction
       frc::Pose2d{0_m, 0_m, 0_deg},
       // Pass through these two interior waypoints, making an 's' curve path
-      {frc::Translation2d{1_m, 1_m}, frc::Translation2d{2_m, -1_m}},
+      {},
       // End 3 meters straight ahead of where we started, facing forward
-      frc::Pose2d{3_m, 0_m, 0_deg},
+      frc::Pose2d{1.5_m, 0_m, 0_deg},
       // Pass the config
       config);
 

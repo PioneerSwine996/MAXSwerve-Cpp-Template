@@ -9,8 +9,8 @@ using namespace rev::spark;
 using namespace ctre::phoenix::motorcontrol;
 
 namespace State {
-  double rotation_setpoints[] = {0.515, 0.315, 0.466, 0.315, 0.260, 0.115};
-  double actuator_setpoints[] = {-120, -120, 0, 0, 0, 0};
+  double rotation_setpoints[] = {0.315, 0.315, 0.360, 0.22, 0.05};
+  double actuator_setpoints[] = {-120, 0, 0, 0, 0};
   int max_state = sizeof(rotation_setpoints)/sizeof(double) - 1;
 }
 
@@ -62,7 +62,7 @@ frc2::CommandPtr ArmSubsystem::zero_arm(double rotation) {
             }
         ).Until(
             [this, rotation] {
-                return getRotation_Encoder() > rotation;
+                return getRotation_Encoder() < rotation;
             }
         ).AndThen(
             [this] {
