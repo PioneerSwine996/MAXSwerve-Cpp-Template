@@ -51,7 +51,7 @@ RobotContainer::RobotContainer() {
                 m_driverController.GetX(), OIConstants::kDeadband)},
             units::radians_per_second_t{frc::ApplyDeadband(
                 -m_driverController.GetRawAxis(3), OIConstants::kDriveDeadband)},
-            false);
+            true);
             frc::SmartDashboard::PutNumber("Gyro yaw", m_drive.GetHeading().value());
       },
       {&m_drive}));
