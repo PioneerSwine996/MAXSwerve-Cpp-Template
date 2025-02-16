@@ -101,7 +101,6 @@ void RobotContainer::ConfigureButtonBindings() {
     .OnTrue(std::move(m_arm.Lower()));
 //   frc2::JoystickButton(&m_driverController, 3) 
 //      .OnTrue(std::move(m_arm.to_position(0, 0.108)));
-
      
 //   frc2::JoystickButton(&m_driverController, 5) 
 //      .OnTrue(std::move(m_arm.to_position(0, 0.347)));

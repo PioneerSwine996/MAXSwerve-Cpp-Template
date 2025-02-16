@@ -10,6 +10,15 @@
 #include <units/angular_velocity.h>
 #include <units/velocity.h>
 
+#include <frc2/command/Commands.h>
+#include <frc2/command/InstantCommand.h>
+#include <frc2/command/PIDCommand.h>
+#include <frc2/command/ParallelRaceGroup.h>
+#include <frc2/command/RunCommand.h>
+#include <frc2/command/SubsystemBase.h>
+
+#include <frc/smartdashboard/SmartDashboard.h>
+
 #include "Constants.h"
 
 using namespace DriveConstants;
@@ -32,6 +41,10 @@ DriveSubsystem::DriveSubsystem()
   // Usage reporting for MAXSwerve template
   HAL_Report(HALUsageReporting::kResourceType_RobotDrive,
              HALUsageReporting::kRobotDriveSwerve_MaxSwerve);
+
+    x_pid.SetTolerance(0.02);
+    z_pid.SetTolerance(0.02);
+    theta_pid.SetTolerance(1.00);
 }
 
 void DriveSubsystem::Periodic() {
@@ -98,6 +111,45 @@ void DriveSubsystem::ResetEncoders() {
   m_rearLeft.ResetEncoders();
   m_frontRight.ResetEncoders();
   m_rearRight.ResetEncoders();
+}
+
+void DriveSubsystem::drive_to_setpoint(double x, double z, double theta) {
+    x = x_pid.Calculate(x);
+    z = z_pid.Calculate(z);
+    theta = -theta_pid.Calculate(theta);
+
+    frc::SmartDashboard::PutNumber("x calc", x);
+    frc::SmartDashboard::PutNumber("z calc", z);
+
+    frc::SmartDashboard::PutNumber("theta calc", theta);
+    if (abs(x) > 0.2) {
+      x /= abs(x) * 0.2;
+    }
+
+    
+    if (abs(z) > 0.3) {
+      z /= abs(z) * 0.3;
+    }
+
+    
+    if (abs(theta) > 0.3) {
+      theta /= abs(theta) * 0.3;
+    }
+
+    Drive(
+      units::meters_per_second_t{frc::ApplyDeadband(
+                z, 0.05)},
+                units::meters_per_second_t{frc::ApplyDeadband(
+                x, 0.05)},
+                units::radians_per_second_t{frc::ApplyDeadband(
+                theta, 0.05)},
+                false);
+}
+
+void DriveSubsystem::set_setpoint(double x, double z, double theta) {
+  x_pid.SetSetpoint(x);
+  z_pid.SetSetpoint(z);
+  theta_pid.SetSetpoint(theta);
 }
 
 units::degree_t DriveSubsystem::GetHeading(){

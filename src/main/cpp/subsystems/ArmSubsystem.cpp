@@ -10,7 +10,7 @@ using namespace ctre::phoenix::motorcontrol;
 
 namespace State {
   double rotation_setpoints[] = {0.315, 0.315, 0.380, 0.332, 0.164};
-  double actuator_setpoints[] = {-120, 0, 0, 0, 0};
+  double actuator_setpoints[] = {-120, -5, -5, -5, -5};
   int max_state = sizeof(rotation_setpoints)/sizeof(double) - 1;
 }
 
