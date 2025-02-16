@@ -93,24 +93,27 @@ private:
    * Adjust the constants for your robot's configuration.
    */
   double GetDistanceFromTag() {
-    // Constants (in meters and degrees); adjust these for your robot setup.
-    const double targetHeight = 2.5;        // Height of the AprilTag (or target) from the floor
-    const double cameraHeight = 0.5;        // Height of the Limelight from the floor
-    const double cameraAngleDegrees = 30.0; // Angle of the Limelight relative to horizontal
+    auto reading = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("botpose_targetspace",std::vector<double>(6));
+    return reading[2];
 
-    auto table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
-    // "ty" is the vertical offset angle from crosshair to target.
-    double ty = table->GetNumber("ty", 0.0);
+    // // Constants (in meters and degrees); adjust these for your robot setup.
+    // const double targetHeight = 2.5;        // Height of the AprilTag (or target) from the floor
+    // const double cameraHeight = 0.5;        // Height of the Limelight from the floor
+    // const double cameraAngleDegrees = 30.0; // Angle of the Limelight relative to horizontal
 
-    double totalAngleDegrees = cameraAngleDegrees + ty;
-    double totalAngleRadians = totalAngleDegrees * (M_PI / 180.0);
+    // auto table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
+    // // "ty" is the vertical offset angle from crosshair to target.
+    // double ty = table->GetNumber("ty", 0.0);
 
-    // Avoid division by zero if the angle is near 0.
-    if (std::abs(std::tan(totalAngleRadians)) < 1e-6) {
-      return 0.0;
-    }
+    // double totalAngleDegrees = cameraAngleDegrees + ty;
+    // double totalAngleRadians = totalAngleDegrees * (M_PI / 180.0);
 
-    double distance = (targetHeight - cameraHeight) / std::tan(totalAngleRadians);
-    return distance;
+    // // Avoid division by zero if the angle is near 0.
+    // if (std::abs(std::tan(totalAngleRadians)) < 1e-6) {
+    //   return 0.0;
+    // }
+
+    // double distance = (targetHeight - cameraHeight) / std::tan(totalAngleRadians);
+    // return distance;
   }
 };
