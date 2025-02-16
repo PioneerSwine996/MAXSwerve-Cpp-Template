@@ -1,5 +1,3 @@
-#pragma once
-
 // DriveToAprilTagRotate.h
 #pragma once1
 
@@ -11,23 +9,7 @@
 // Include your subsystem headers
 #include "subsystems/DriveSubsystem.h"
 #include "subsystems/VisionSubsystem.h"
-#include "subsystems/ArmSubsystem.h"
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
-// Helper function to wrap an angle (in radians) to the range [-pi, pi].
-inline double WrapAngle(double angle) {
-  while (angle > M_PI)  angle -= 2.0 * M_PI;
-  while (angle < -M_PI) angle += 2.0 * M_PI;
-  return angle;
-}
-
-/**
- * Command that uses the Limelight-provided robot pose (x, y, yaw) in the target's coordinate frame
- * to drive the robot to a point 1 meter from the t arget (assumed at (0,0))
- * and to rotate so that the robot faces the target.
 /**
  * @brief Drives the robot toward an AprilTag until it is 1 meter away,
  * while rotating to face the tag head-on.
@@ -38,16 +20,6 @@ inline double WrapAngle(double angle) {
  *  - A heading controller that rotates the robot to zero out the horizontal offset (tx)
  *    from the Limelight.
  */
-class DriveToTag
-    : public frc2::CommandHelper<frc2::Command, DriveToTag> {
-public:
-  explicit DriveToTag(DriveSubsystem* driveSubsystem, VisionSubsystem* visionSubsystem, ArmSubsystem* armSubsystem)
-      : m_driveSubsystem(driveSubsystem),
-        m_visionSubsystem(visionSubsystem),
-        m_armSubsystem(armSubsystem),
-        m_distancePID(0.5, 0.0, 0.1),   // Tune these PID gains as needed.
-        m_rotationPID(0.03, 0.0, 0.005)   // Tune these PID gains as needed.
-  {
 class DriveToAprilTagRotate
     : public frc2::CommandHelper<frc2::Command, DriveToAprilTagRotate> {
  public:
@@ -64,43 +36,7 @@ class DriveToAprilTagRotate
     // Optionally, reset controllers or sensors.
   }
 
-  const double x_offset = 0.5;
-
   void Execute() override {
-    // Retrieve the robot's current pose from the Limelight.
-    double robotX   = m_visionSubsystem->GetX() - x_offset;    // in meters
-    double robotY   = -m_visionSubsystem->GetZ();    // in meters
-    double robotYaw = -m_visionSubsystem->GetYaw() * M_PI/180;  // in radians
-
-    // 1. Compute the current distance from the target (target assumed at (0,0)).
-    double currentDistance = std::sqrt(robotX * robotX + robotY * robotY);
-    double distanceError = currentDistance - m_targetDistance; // m_targetDistance is 1.0 meter.
-
-    // 2. Compute the unit vector from target to robot.
-    double ux = (currentDistance > 1e-6) ? robotX / currentDistance : 0.0;
-    double uy = (currentDistance > 1e-6) ? robotY / currentDistance : 0.0;
-
-    // 3. Compute translation command magnitude using the distance PID.
-    double translationCmdMagnitude = m_distancePID.Calculate(currentDistance, m_targetDistance);
-    translationCmdMagnitude = std::clamp(translationCmdMagnitude, -m_maxSpeed, m_maxSpeed);
-
-    // In the target's coordinate frame, the desired translation vector is:
-    double targetFrameVx = translationCmdMagnitude * ux;
-    double targetFrameVy = translationCmdMagnitude * uy;
-
-    // 4. Convert the translation command into the robot's coordinate frame.
-    // Rotate by -robotYaw to align the target vector with the robot's forward axis.
-    double forwardCmd = targetFrameVx * std::cos(-robotYaw) - targetFrameVy * std::sin(-robotYaw);
-    double strafeCmd  = targetFrameVx * std::sin(-robotYaw) + targetFrameVy * std::cos(-robotYaw);
-
-    // 5. Compute desired yaw: the robot should face the target (i.e. toward the origin).
-    double desiredYaw = std::atan2(-robotY, -robotX);
-    double yawError = WrapAngle(desiredYaw - robotYaw);
-    double rotationCmd = m_rotationPID.Calculate(robotYaw, desiredYaw);
-    rotationCmd = std::clamp(rotationCmd, -m_maxRotation, m_maxRotation);
-
-    // 6. Command the swerve drive subsystem.
-    m_driveSubsystem->Drive(units::meters_per_second_t{-strafeCmd}, units::meters_per_second_t{forwardCmd}, units::radians_per_second_t{rotationCmd}, false);
     // Get the current distance from the Limelight (in meters)
     double distance = m_limelight->GetZ();
 
@@ -157,18 +93,6 @@ class DriveToAprilTagRotate
     m_drive->Drive(units::meters_per_second_t{0.0}, units::meters_per_second_t{0.0}, units::radians_per_second_t{0.0}, false);
   }
 
-private:
-  DriveSubsystem* m_driveSubsystem;
-  VisionSubsystem* m_visionSubsystem;
-  ArmSubsystem* m_armSubsystem;
-  frc::PIDController m_distancePID;
-  frc::PIDController m_rotationPID;
-
-  const double m_targetDistance = 1.6;    // Desired distance from target (meters).
-  const double m_distanceTolerance = 0.1;   // Tolerance for distance (meters).
-  const double m_maxSpeed = 0.2;            // Maximum translation speed (m/s).
-  const double m_maxRotation = 0.5;         // Maximum rotational speed (rad/s).
-  const double m_yawTolerance = 0.05;       // Tolerance for yaw error (radians).
  private:
   DriveSubsystem* m_drive;
   VisionSubsystem* m_limelight;
