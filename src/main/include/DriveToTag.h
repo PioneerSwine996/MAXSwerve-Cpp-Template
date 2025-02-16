@@ -10,6 +10,7 @@
 #include <frc/controller/PIDController.h>
 #include <networktables/NetworkTableInstance.h>
 #include "subsystems/DriveSubsystem.h"
+#include "subsystems/VisionSubsystem.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -24,8 +25,9 @@
 class DriveToTagCommand
     : public frc2::CommandHelper<frc2::Command, DriveToTagCommand> {
 public:
-  explicit DriveToTagCommand(DriveSubsystem* driveSubsystem)
+  explicit DriveToTagCommand(DriveSubsystem* driveSubsystem, VisionSubsystem *vision)
       : m_driveSubsystem(driveSubsystem),
+        m_visionSubsystem(vision),
         m_distancePID(0.5, 0.0, 0.1),   // PID gains for distance control (tune these)
         m_rotationPID(0.03, 0.0, 0.005)  // PID gains for rotation control (tune these)
   {
@@ -53,8 +55,7 @@ public:
     distanceSpeed = std::clamp(distanceSpeed, -m_maxSpeed, m_maxSpeed);
 
     // Get horizontal offset (tx) from the Limelight (degrees).
-    auto table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
-    double tx = table->GetNumber("tx", 0.0);
+    double tx = m_visionSubsystem->GetYaw();
     double tx_rad = tx * (M_PI / 180.0);
 
     // Compute the robot-relative translation vector:
@@ -64,11 +65,11 @@ public:
     double strafeCmd  = distanceSpeed * std::sin(tx_rad);
 
     // Compute a rotation command so the robot turns to center the target (tx => 0).
-    double rotationCmd = m_rotationPID.Calculate(tx, 0.0);
+    double rotationCmd = -m_rotationPID.Calculate(tx, 0.0);
     rotationCmd = std::clamp(rotationCmd, -m_maxRotation, m_maxRotation);
 
     // Command the swerve drive subsystem.
-    m_driveSubsystem->Drive(units::meters_per_second_t{forwardCmd}, units::meters_per_second_t{strafeCmd}, units::meters_per_second_t{rotationCmd}, false);
+    m_driveSubsystem->Drive(units::meters_per_second_t{forwardCmd}, units::meters_per_second_t{strafeCmd}, units::radians_per_second_t{rotationCmd}, false);
   }
 
   void End(bool interrupted) override {
@@ -77,22 +78,19 @@ public:
 
   bool IsFinished() override {
     // Command finishes when both the distance error and the angle error are within tolerance.
-    double currentDistance = GetDistanceFromTag();
-    auto table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
-    double tx = table->GetNumber("tx", 0.0);
-    return (std::abs(currentDistance - m_targetDistance) < m_distanceTolerance) &&
-           (std::abs(tx) < m_angleTolerance);
+    return m_distancePID.AtSetpoint() && m_rotationPID.AtSetpoint();
   }
 
 private:
   DriveSubsystem* m_driveSubsystem;
+  VisionSubsystem* m_visionSubsystem;
   frc::PIDController m_distancePID;
   frc::PIDController m_rotationPID;
 
   // Target distance from the tag (meters).
-  const double m_targetDistance = 1.0;
+  const double m_targetDistance = 1.7;
   const double m_distanceTolerance = 0.1; // meters tolerance for distance
-  const double m_maxSpeed = 1.0;          // maximum translation speed (m/s)
+  const double m_maxSpeed = 0.2;          // maximum translation speed (m/s)
 
   // Maximum rotational speed (rad/s); adjust as necessary.
   const double m_maxRotation = 0.5;
@@ -117,8 +115,7 @@ private:
    * Adjust the constants for your robot’s configuration.
    */
   double GetDistanceFromTag() {
-    auto reading = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("botpose_targetspace",std::vector<double>(6));
-    return reading[2];
+    return -m_visionSubsystem->GetZ();
 //     const double targetHeight = 2.5;        // Height of the AprilTag (meters)
 //     const double cameraHeight = 0.5;        // Height of the Limelight (meters)
 //     const double cameraAngleDegrees = 30.0; // Limelight mounting angle (degrees)

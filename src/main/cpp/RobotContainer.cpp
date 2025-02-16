@@ -148,6 +148,6 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
 
 //   return forward;
     return new DriveToTagCommand(
-        &m_drive
+        &m_drive, &m_vision
     );
 }
