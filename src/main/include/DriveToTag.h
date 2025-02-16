@@ -1,13 +1,14 @@
 #pragma once
 
+// DriveToAprilTagRotate.h
+#pragma once
 
 #include <cmath>
 #include <algorithm>
-#include <iostream>
-
-#include <frc2/command/CommandHelper.h>
 #include <frc2/command/Command.h>
-#include <frc/controller/PIDController.h>
+#include <frc2/command/CommandHelper.h>
+
+// Include your subsystem headers
 #include "subsystems/DriveSubsystem.h"
 #include "subsystems/VisionSubsystem.h"
 #include "subsystems/ArmSubsystem.h"
@@ -27,6 +28,15 @@ inline double WrapAngle(double angle) {
  * Command that uses the Limelight-provided robot pose (x, y, yaw) in the target's coordinate frame
  * to drive the robot to a point 1 meter from the t arget (assumed at (0,0))
  * and to rotate so that the robot faces the target.
+/**
+ * @brief Drives the robot toward an AprilTag until it is 1 meter away,
+ * while rotating to face the tag head-on.
+ *
+ * This command uses two controllers:
+ *  - A distance controller that drives forward until the distance error (distance - 1 m)
+ *    is reduced.
+ *  - A heading controller that rotates the robot to zero out the horizontal offset (tx)
+ *    from the Limelight.
  */
 class DriveToTag
     : public frc2::CommandHelper<frc2::Command, DriveToTag> {
@@ -38,14 +48,20 @@ public:
         m_distancePID(0.5, 0.0, 0.1),   // Tune these PID gains as needed.
         m_rotationPID(0.03, 0.0, 0.005)   // Tune these PID gains as needed.
   {
+class DriveToAprilTagRotate
+    : public frc2::CommandHelper<frc2::Command, DriveToAprilTagRotate> {
+ public:
+  /**
+   * @param driveSubsystem Pointer to the MAXSwerve drive subsystem.
+   * @param limelight Pointer to the Limelight subsystem (or helper) that provides target data.
+   */
+  DriveToAprilTagRotate(DriveSubsystem* driveSubsystem, VisionSubsystem* limelight)
+      : m_drive(driveSubsystem), m_limelight(limelight) {
     AddRequirements({driveSubsystem});
-    m_distancePID.SetTolerance(0.1);  // 10 cm tolerance for distance.
-    m_rotationPID.SetTolerance(0.05); // ~2.8° tolerance for yaw (in radians).
   }
 
   void Initialize() override {
-    m_distancePID.Reset();
-    m_rotationPID.Reset();
+    // Optionally, reset controllers or sensors.
   }
 
   const double x_offset = 0.5;
@@ -85,14 +101,60 @@ public:
 
     // 6. Command the swerve drive subsystem.
     m_driveSubsystem->Drive(units::meters_per_second_t{-strafeCmd}, units::meters_per_second_t{forwardCmd}, units::radians_per_second_t{rotationCmd}, false);
+    // Get the current distance from the Limelight (in meters)
+    double distance = m_limelight->GetZ();
+
+    // Only drive if we are farther than 1 meter away.
+    if (distance > 1.0) {
+      // --- Translation Controller ---
+      // Calculate how far we are from 1 meter.
+      double distanceError = distance - 1.0;
+      constexpr double kPDistance = 0.5;  // Tune this constant as needed.
+      double forwardSpeed = kPDistance * distanceError;
+
+
+      // Clamp the forward speed to a maximum value.
+      constexpr double kMaxSpeed = 1.0;   // Maximum speed (m/s)
+      forwardSpeed = std::min(forwardSpeed, kMaxSpeed);
+
+      // --- Rotation Controller ---
+      // Get the horizontal offset (tx in degrees) from the Limelight.
+      double tx = m_limelight->GetX();
+
+      // A positive tx means the target is to the right of center.
+      // To rotate the robot so that its front faces the target, we need to turn clockwise,
+      // which is typically a negative angular velocity.
+      constexpr double kPRotation = 0.03; // Tune this constant as needed.
+      double rotationCommand = -kPRotation * tx;
+
+      // --- Choose Translation Option ---
+      // Option 1: Drive straight forward relative to the robot's current orientation.
+    //   double vx = forwardSpeed;
+    //   double vy = 0.0;
+
+      // Option 2: Drive directly toward the target based on its angular offset.
+      // Uncomment the lines below if you prefer this behavior.
+      double angleRadians = tx * (M_PI / 180.0);
+      double vx = forwardSpeed * std::cos(angleRadians);
+      double vy = forwardSpeed * std::sin(angleRadians);
+
+      // Command the drive subsystem:
+      // vx and vy are translational speeds (m/s), and rotationCommand is angular speed (rad/s).
+      m_drive->Drive(units::meters_per_second_t{vx}, units::meters_per_second_t{vy}, units::radians_per_second_t{rotationCommand}, false);
+    } else {
+      // When 1 meter or closer, stop the robot.
+      m_drive->Drive(units::meters_per_second_t{0.0}, units::meters_per_second_t{0.0}, units::radians_per_second_t{0.0}, false);
+    }
+  }
+
+  // The command ends once the robot is within 1 meter of the AprilTag.
+  bool IsFinished() override {
+    return m_limelight->GetZ() <= 1.0;
   }
 
   void End(bool interrupted) override {
-    m_driveSubsystem->Drive(0_mps, 0_mps, 0_rad_per_s, false);
-  }
-
-  bool IsFinished() override {
-    return m_distancePID.AtSetpoint() && m_rotationPID.AtSetpoint();
+    // Stop the robot if the command ends or is interrupted.
+    m_drive->Drive(units::meters_per_second_t{0.0}, units::meters_per_second_t{0.0}, units::radians_per_second_t{0.0}, false);
   }
 
 private:
@@ -107,4 +169,7 @@ private:
   const double m_maxSpeed = 0.2;            // Maximum translation speed (m/s).
   const double m_maxRotation = 0.5;         // Maximum rotational speed (rad/s).
   const double m_yawTolerance = 0.05;       // Tolerance for yaw error (radians).
+ private:
+  DriveSubsystem* m_drive;
+  VisionSubsystem* m_limelight;
 };
