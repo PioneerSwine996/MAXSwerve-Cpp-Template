@@ -9,7 +9,7 @@ using namespace rev::spark;
 using namespace ctre::phoenix::motorcontrol;
 
 namespace State {
-  double rotation_setpoints[] = {0.315, 0.315, 0.280, 0.312, 0.114};
+  double rotation_setpoints[] = {0.315, 0.315, 0.280, 0.312, 0.094};
   double actuator_setpoints[] = {-120, -5, -5, -5, -5};
   int max_state = sizeof(rotation_setpoints)/sizeof(double) - 1;
 }
@@ -58,7 +58,7 @@ frc2::CommandPtr ArmSubsystem::zero_arm(double rotation) {
     return frc2::cmd::Sequence(
         frc2::cmd::Run(
             [this] {
-                setChain_Motor(-0.1);
+                setChain_Motor(-0.3);
             }
         ).Until(
             [this, rotation] {
@@ -70,7 +70,7 @@ frc2::CommandPtr ArmSubsystem::zero_arm(double rotation) {
             }
         ), frc2::cmd::Run(
         [this] {
-            setActuator(0.2);
+            setActuator(0.4);
         }
     ).Until(
         [this] {
@@ -102,11 +102,11 @@ frc2::CommandPtr ArmSubsystem::Lower(){
     });
 }
 
-frc2::CommandPtr ArmSubsystem::to_position() {
+frc2::CommandPtr ArmSubsystem::to_position(frc::Joystick *joy) {
     return frc2::cmd::Parallel(
              // Run the shooter flywheel at the desired setpoint using
              // feedforward and feedback
-             Run([this] {
+             Run([this, joy] {
                 double Rotation_Target = State::rotation_setpoints[state];
                 double Actuator_Target = State::actuator_setpoints[state];
 
@@ -118,13 +118,26 @@ frc2::CommandPtr ArmSubsystem::to_position() {
                     Rotation_calc = 8; 
                 if (Rotation_calc < -8)
                     Rotation_calc = -8;
-                if (Actuator_calc > 4)
-                    Actuator_calc = 4; 
-                if (Actuator_calc < -4)
-                    Actuator_calc = -4;
+                if (Actuator_calc > 6)
+                    Actuator_calc = 6; 
+                if (Actuator_calc < -6)
+                    Actuator_calc = -6;
 
                 Rotation_calc = frc::ApplyDeadband(Rotation_calc, 0.3, 12.0);
                 Actuator_calc = frc::ApplyDeadband(Actuator_calc, 0.3, 12.0);
+
+                if (joy->GetRawButton(7)) {
+                    state = 1;
+                   if (joy->GetRawButton(3)) {
+                    Rotation_calc = -2;
+                   } else if (joy->GetRawButton(5)) {
+                    Rotation_calc = 2;
+                   } else {
+                    Rotation_calc = 0;
+                   }
+
+                   Actuator_calc = 0;
+                }
 
 
                 frc::SmartDashboard::PutNumber("Rotation calc", Rotation_calc);

@@ -34,8 +34,8 @@ private:
   double yaw{};
 
 
-  frc::LinearFilter<double> xfilter = frc::LinearFilter<double>::SinglePoleIIR(0.15, 0.02_s);
-  frc::LinearFilter<double> zfilter = frc::LinearFilter<double>::SinglePoleIIR(0.15, 0.02_s);
-  frc::LinearFilter<double> yawfilter = frc::LinearFilter<double>::SinglePoleIIR(0.15, 0.02_s);
+  frc::LinearFilter<double> xfilter = frc::LinearFilter<double>::SinglePoleIIR(0.5, 0.02_s);
+  frc::LinearFilter<double> zfilter = frc::LinearFilter<double>::SinglePoleIIR(0.5, 0.02_s);
+  frc::LinearFilter<double> yawfilter = frc::LinearFilter<double>::SinglePoleIIR(0.5, 0.02_s);
 
 };

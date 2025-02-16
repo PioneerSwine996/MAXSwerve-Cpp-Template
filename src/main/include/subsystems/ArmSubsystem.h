@@ -15,6 +15,8 @@
 
 #include <frc2/command/Commands.h>
 
+#include <frc/Joystick.h>
+
 #include "Constants.h"
 
 using namespace rev::spark;
@@ -44,7 +46,7 @@ class ArmSubsystem : public frc2::SubsystemBase {
   frc2::CommandPtr Lower(); 
 
   frc2::CommandPtr zero_arm(double rotation);
-  frc2::CommandPtr to_position();
+  frc2::CommandPtr to_position(frc::Joystick *joy);
 
  private:
  bool zeroed = false;

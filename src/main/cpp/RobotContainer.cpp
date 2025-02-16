@@ -91,8 +91,8 @@ RobotContainer::RobotContainer() {
       {&m_drive}));
 
   m_arm.SetDefaultCommand(
-      frc2::cmd::Parallel(m_arm.zero_arm(0.250).AndThen(m_arm.to_position())));
-  m_arm.setWheel(-0.05);
+      frc2::cmd::Parallel(m_arm.zero_arm(0.250).AndThen(m_arm.to_position(&m_driverController))));
+  m_arm.setWheel(-0.1);
 
   m_vision.SetDefaultCommand(frc2::cmd::Run(
       [this] {
@@ -147,7 +147,7 @@ frc2::Command* RobotContainer::GetAutonomousCommand() {
 //       {&m_drive});
 
 //   return forward;
-    return new DriveToTagCommand(
-        &m_drive, &m_vision
+    return new DriveToTag(
+        &m_drive, &m_vision, &m_arm
     );
 }
