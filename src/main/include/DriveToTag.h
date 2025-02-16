@@ -1,4 +1,4 @@
-#pragma once1
+#pragma once
 
 
 #include <cmath>
@@ -10,6 +10,7 @@
 #include <frc/controller/PIDController.h>
 #include "subsystems/DriveSubsystem.h"
 #include "subsystems/VisionSubsystem.h"
+#include "subsystems/ArmSubsystem.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -24,15 +25,16 @@ inline double WrapAngle(double angle) {
 
 /**
  * Command that uses the Limelight-provided robot pose (x, y, yaw) in the target's coordinate frame
- * to drive the robot to a point 1 meter from the target (assumed at (0,0))
+ * to drive the robot to a point 1 meter from the t arget (assumed at (0,0))
  * and to rotate so that the robot faces the target.
  */
-class DriveToTagWithPoseCommand
-    : public frc2::CommandHelper<frc2::Command, DriveToTagWithPoseCommand> {
+class DriveToTag
+    : public frc2::CommandHelper<frc2::Command, DriveToTag> {
 public:
-  explicit DriveToTagWithPoseCommand(DriveSubsystem* driveSubsystem, VisionSubsystem* visionSubsystem)
+  explicit DriveToTag(DriveSubsystem* driveSubsystem, VisionSubsystem* visionSubsystem, ArmSubsystem* armSubsystem)
       : m_driveSubsystem(driveSubsystem),
         m_visionSubsystem(visionSubsystem),
+        m_armSubsystem(armSubsystem),
         m_distancePID(0.5, 0.0, 0.1),   // Tune these PID gains as needed.
         m_rotationPID(0.03, 0.0, 0.005)   // Tune these PID gains as needed.
   {
@@ -46,11 +48,13 @@ public:
     m_rotationPID.Reset();
   }
 
+  const double x_offset = 0.5;
+
   void Execute() override {
     // Retrieve the robot's current pose from the Limelight.
-    double robotX   = m_visionSubsystem->GetX();    // in meters
-    double robotY   = m_visionSubsystem->GetZ();    // in meters
-    double robotYaw = m_visionSubsystem->GetYaw() * M_PI/180;  // in radians
+    double robotX   = m_visionSubsystem->GetX() - x_offset;    // in meters
+    double robotY   = -m_visionSubsystem->GetZ();    // in meters
+    double robotYaw = -m_visionSubsystem->GetYaw() * M_PI/180;  // in radians
 
     // 1. Compute the current distance from the target (target assumed at (0,0)).
     double currentDistance = std::sqrt(robotX * robotX + robotY * robotY);
@@ -80,7 +84,7 @@ public:
     rotationCmd = std::clamp(rotationCmd, -m_maxRotation, m_maxRotation);
 
     // 6. Command the swerve drive subsystem.
-    m_driveSubsystem->Drive(units::meters_per_second_t{forwardCmd}, units::meters_per_second_t{strafeCmd}, units::radians_per_second_t{rotationCmd}, false);
+    m_driveSubsystem->Drive(units::meters_per_second_t{-strafeCmd}, units::meters_per_second_t{forwardCmd}, units::radians_per_second_t{rotationCmd}, false);
   }
 
   void End(bool interrupted) override {
@@ -94,12 +98,13 @@ public:
 private:
   DriveSubsystem* m_driveSubsystem;
   VisionSubsystem* m_visionSubsystem;
+  ArmSubsystem* m_armSubsystem;
   frc::PIDController m_distancePID;
   frc::PIDController m_rotationPID;
 
   const double m_targetDistance = 1.6;    // Desired distance from target (meters).
   const double m_distanceTolerance = 0.1;   // Tolerance for distance (meters).
-  const double m_maxSpeed = 0.4;            // Maximum translation speed (m/s).
+  const double m_maxSpeed = 0.2;            // Maximum translation speed (m/s).
   const double m_maxRotation = 0.5;         // Maximum rotational speed (rad/s).
   const double m_yawTolerance = 0.05;       // Tolerance for yaw error (radians).
 };
