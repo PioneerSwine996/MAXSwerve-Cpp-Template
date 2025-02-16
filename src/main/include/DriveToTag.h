@@ -1,5 +1,5 @@
-//=== DriveToTagCommand.h ===
-#pragma once
+#pragma once1
+
 
 #include <cmath>
 #include <algorithm>
@@ -8,7 +8,6 @@
 #include <frc2/command/CommandHelper.h>
 #include <frc2/command/Command.h>
 #include <frc/controller/PIDController.h>
-#include <networktables/NetworkTableInstance.h>
 #include "subsystems/DriveSubsystem.h"
 #include "subsystems/VisionSubsystem.h"
 
@@ -16,24 +15,30 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+// Helper function to wrap an angle (in radians) to the range [-pi, pi].
+inline double WrapAngle(double angle) {
+  while (angle > M_PI)  angle -= 2.0 * M_PI;
+  while (angle < -M_PI) angle += 2.0 * M_PI;
+  return angle;
+}
+
 /**
- * Command that drives the robot to a point 1 meter from an AprilTag.
- * It computes a translation vector based on the measured distance (from ty)
- * and the horizontal offset (tx) so that the robot drives directly toward the tag.
- * Simultaneously, it rotates the robot until the tag is centered.
+ * Command that uses the Limelight-provided robot pose (x, y, yaw) in the target's coordinate frame
+ * to drive the robot to a point 1 meter from the target (assumed at (0,0))
+ * and to rotate so that the robot faces the target.
  */
-class DriveToTagCommand
-    : public frc2::CommandHelper<frc2::Command, DriveToTagCommand> {
+class DriveToTagWithPoseCommand
+    : public frc2::CommandHelper<frc2::Command, DriveToTagWithPoseCommand> {
 public:
-  explicit DriveToTagCommand(DriveSubsystem* driveSubsystem, VisionSubsystem *vision)
+  explicit DriveToTagWithPoseCommand(DriveSubsystem* driveSubsystem, VisionSubsystem* visionSubsystem)
       : m_driveSubsystem(driveSubsystem),
-        m_visionSubsystem(vision),
-        m_distancePID(0.5, 0.0, 0.1),   // PID gains for distance control (tune these)
-        m_rotationPID(0.03, 0.0, 0.005)  // PID gains for rotation control (tune these)
+        m_visionSubsystem(visionSubsystem),
+        m_distancePID(0.5, 0.0, 0.1),   // Tune these PID gains as needed.
+        m_rotationPID(0.03, 0.0, 0.005)   // Tune these PID gains as needed.
   {
     AddRequirements({driveSubsystem});
-    m_distancePID.SetTolerance(0.1);  // 10 cm tolerance for distance
-    m_rotationPID.SetTolerance(2.0);  // 2° tolerance for the horizontal offset
+    m_distancePID.SetTolerance(0.1);  // 10 cm tolerance for distance.
+    m_rotationPID.SetTolerance(0.05); // ~2.8° tolerance for yaw (in radians).
   }
 
   void Initialize() override {
@@ -42,33 +47,39 @@ public:
   }
 
   void Execute() override {
-    // If no valid target is detected, stop the robot.
-    if (!HasValidTarget()) {
-        m_driveSubsystem->Drive(0_mps, 0_mps, 0_rad_per_s, false);
-      return;
-    }
+    // Retrieve the robot's current pose from the Limelight.
+    double robotX   = m_visionSubsystem->GetX();    // in meters
+    double robotY   = m_visionSubsystem->GetZ();    // in meters
+    double robotYaw = m_visionSubsystem->GetYaw() * M_PI/180;  // in radians
 
-    // Get current distance from the tag (meters) using the vertical offset.
-    double currentDistance = GetDistanceFromTag();
-    // Compute translation speed using the distance PID.
-    double distanceSpeed = m_distancePID.Calculate(currentDistance, m_targetDistance);
-    distanceSpeed = std::clamp(distanceSpeed, -m_maxSpeed, m_maxSpeed);
+    // 1. Compute the current distance from the target (target assumed at (0,0)).
+    double currentDistance = std::sqrt(robotX * robotX + robotY * robotY);
+    double distanceError = currentDistance - m_targetDistance; // m_targetDistance is 1.0 meter.
 
-    // Get horizontal offset (tx) from the Limelight (degrees).
-    double tx = m_visionSubsystem->GetYaw();
-    double tx_rad = tx * (M_PI / 180.0);
+    // 2. Compute the unit vector from target to robot.
+    double ux = (currentDistance > 1e-6) ? robotX / currentDistance : 0.0;
+    double uy = (currentDistance > 1e-6) ? robotY / currentDistance : 0.0;
 
-    // Compute the robot-relative translation vector:
-    // The target’s direction (relative to the robot’s forward axis) is given by tx.
-    // Decompose the translation command into forward and strafe components.
-    double forwardCmd = distanceSpeed * std::cos(tx_rad);
-    double strafeCmd  = distanceSpeed * std::sin(tx_rad);
+    // 3. Compute translation command magnitude using the distance PID.
+    double translationCmdMagnitude = m_distancePID.Calculate(currentDistance, m_targetDistance);
+    translationCmdMagnitude = std::clamp(translationCmdMagnitude, -m_maxSpeed, m_maxSpeed);
 
-    // Compute a rotation command so the robot turns to center the target (tx => 0).
-    double rotationCmd = -m_rotationPID.Calculate(tx, 0.0);
+    // In the target's coordinate frame, the desired translation vector is:
+    double targetFrameVx = translationCmdMagnitude * ux;
+    double targetFrameVy = translationCmdMagnitude * uy;
+
+    // 4. Convert the translation command into the robot's coordinate frame.
+    // Rotate by -robotYaw to align the target vector with the robot's forward axis.
+    double forwardCmd = targetFrameVx * std::cos(-robotYaw) - targetFrameVy * std::sin(-robotYaw);
+    double strafeCmd  = targetFrameVx * std::sin(-robotYaw) + targetFrameVy * std::cos(-robotYaw);
+
+    // 5. Compute desired yaw: the robot should face the target (i.e. toward the origin).
+    double desiredYaw = std::atan2(-robotY, -robotX);
+    double yawError = WrapAngle(desiredYaw - robotYaw);
+    double rotationCmd = m_rotationPID.Calculate(robotYaw, desiredYaw);
     rotationCmd = std::clamp(rotationCmd, -m_maxRotation, m_maxRotation);
 
-    // Command the swerve drive subsystem.
+    // 6. Command the swerve drive subsystem.
     m_driveSubsystem->Drive(units::meters_per_second_t{forwardCmd}, units::meters_per_second_t{strafeCmd}, units::radians_per_second_t{rotationCmd}, false);
   }
 
@@ -77,7 +88,6 @@ public:
   }
 
   bool IsFinished() override {
-    // Command finishes when both the distance error and the angle error are within tolerance.
     return m_distancePID.AtSetpoint() && m_rotationPID.AtSetpoint();
   }
 
@@ -87,51 +97,9 @@ private:
   frc::PIDController m_distancePID;
   frc::PIDController m_rotationPID;
 
-  // Target distance from the tag (meters).
-  const double m_targetDistance = 1.7;
-  const double m_distanceTolerance = 0.1; // meters tolerance for distance
-  const double m_maxSpeed = 0.2;          // maximum translation speed (m/s)
-
-  // Maximum rotational speed (rad/s); adjust as necessary.
-  const double m_maxRotation = 0.5;
-  const double m_angleTolerance = 2.0;    // degrees tolerance for the horizontal offset
-
-  /**
-   * Checks if the Limelight has a valid target.
-   * It expects the "tv" entry to be 1.0 if a valid target is detected.
-   */
-  bool HasValidTarget() {
-    auto table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
-    double tv = table->GetNumber("tv", 0.0);
-    return tv >= 1.0;
-  }
-
-  /**
-   * Computes the distance to the target using the Limelight's vertical offset ("ty").
-   *
-   * The formula is:
-   *   distance = (targetHeight - cameraHeight) / tan(cameraAngle + ty)
-   *
-   * Adjust the constants for your robot’s configuration.
-   */
-  double GetDistanceFromTag() {
-    return -m_visionSubsystem->GetZ();
-//     const double targetHeight = 2.5;        // Height of the AprilTag (meters)
-//     const double cameraHeight = 0.5;        // Height of the Limelight (meters)
-//     const double cameraAngleDegrees = 30.0; // Limelight mounting angle (degrees)
-
-//     auto table = nt::NetworkTableInstance::GetDefault().GetTable("limelight");
-//     double ty = table->GetNumber("ty", 0.0);
-
-//     double totalAngleDegrees = cameraAngleDegrees + ty;
-//     double totalAngleRadians = totalAngleDegrees * (M_PI / 180.0);
-
-//     // Prevent division by zero.
-//     if (std::abs(std::tan(totalAngleRadians)) < 1e-6) {
-//       return 0.0;
-//     }
-
-//     double distance = (targetHeight - cameraHeight) / std::tan(totalAngleRadians);
-//     return distance;
-    }
+  const double m_targetDistance = 1.6;    // Desired distance from target (meters).
+  const double m_distanceTolerance = 0.1;   // Tolerance for distance (meters).
+  const double m_maxSpeed = 0.4;            // Maximum translation speed (m/s).
+  const double m_maxRotation = 0.5;         // Maximum rotational speed (rad/s).
+  const double m_yawTolerance = 0.05;       // Tolerance for yaw error (radians).
 };
