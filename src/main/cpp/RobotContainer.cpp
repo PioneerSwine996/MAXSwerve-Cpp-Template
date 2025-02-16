@@ -25,6 +25,7 @@
 #include "Constants.h"
 #include "subsystems/ArmSubsystem.h"
 #include "subsystems/DriveSubsystem.h"
+#include "DriveToTag.h"
 
 time_t start;
 
@@ -134,16 +135,19 @@ void RobotContainer::ConfigureButtonBindings() {
 }
 
 frc2::Command* RobotContainer::GetAutonomousCommand() {
-  auto forward = new frc2::RunCommand(
-      [this] {
-        m_drive.start_timer();
-        if (m_drive.get_timer() < 1.0) {
-          m_drive.Drive(-0.3_mps, 0_mps, 0_rad_per_s, false);
-        } else {
-          m_drive.Drive(0.0_mps, 0_mps, 0_rad_per_s, false);
-        }
-      },
-      {&m_drive});
+//   auto forward = new frc2::RunCommand(
+//       [this] {
+//         m_drive.start_timer();
+//         if (m_drive.get_timer() < 1.0) {
+//           m_drive.Drive(-0.3_mps, 0_mps, 0_rad_per_s, false);
+//         } else {
+//           m_drive.Drive(0.0_mps, 0_mps, 0_rad_per_s, false);
+//         }
+//       },
+//       {&m_drive});
 
-  return forward;
+//   return forward;
+    return new DriveToTagCommand(
+        &m_drive
+    );
 }
