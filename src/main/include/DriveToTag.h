@@ -1,4 +1,5 @@
-#pragma once
+#pragma once1
+
 
 #include <cmath>
 #include <algorithm>
