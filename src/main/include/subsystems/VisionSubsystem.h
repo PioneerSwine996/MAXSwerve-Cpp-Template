@@ -12,17 +12,17 @@
 class VisionSubsystem : public frc2::SubsystemBase {
 public:
   void Periodic() noexcept override {
-    auto reading = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("<botpose_targetspace>",std::vector<double>(6));
+    auto reading = nt::NetworkTableInstance::GetDefault().GetTable("limelight")->GetNumberArray("botpose_targetspace",std::vector<double>(6));
     x = xfilter.Calculate(reading[0]);
-    y = yfilter.Calculate(reading[1]);
+    z = zfilter.Calculate(reading[2]);
     yaw = yawfilter.Calculate(reading[4]);
   }
 
   double GetX() {
     return x;
   }
-    double GetY() {
-    return y;
+    double GetZ() {
+    return z;
   }
     double GetYaw() {
     return yaw;
@@ -30,12 +30,12 @@ public:
 
 private:
   double x{};
-  double y{};
+  double z{};
   double yaw{};
 
 
   frc::LinearFilter<double> xfilter = frc::LinearFilter<double>::SinglePoleIIR(0.1, 0.02_s);
-  frc::LinearFilter<double> yfilter = frc::LinearFilter<double>::SinglePoleIIR(0.1, 0.02_s);
+  frc::LinearFilter<double> zfilter = frc::LinearFilter<double>::SinglePoleIIR(0.1, 0.02_s);
   frc::LinearFilter<double> yawfilter = frc::LinearFilter<double>::SinglePoleIIR(0.1, 0.02_s);
 
 };

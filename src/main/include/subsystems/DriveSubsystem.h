@@ -13,6 +13,7 @@
 #include <frc2/command/SubsystemBase.h>
 #include <studica/AHRS.h>
 
+#include <frc/controller/PIDController.h>
 
 #include "Constants.h"
 #include "MAXSwerveModule.h"
@@ -91,6 +92,10 @@ class DriveSubsystem : public frc2::SubsystemBase {
    */
   void ResetOdometry(frc::Pose2d pose);
 
+  frc2::CommandPtr drive_to_setpoint();
+
+  void set_setpoint();
+
   frc::SwerveDriveKinematics<4> kDriveKinematics{
       frc::Translation2d{DriveConstants::kWheelBase / 2,
                          DriveConstants::kTrackWidth / 2},
@@ -117,4 +122,8 @@ class DriveSubsystem : public frc2::SubsystemBase {
   // Odometry class for tracking robot pose
   // 4 defines the number of modules
   frc::SwerveDriveOdometry<4> m_odometry;
+
+  frc::PIDController theta_pid{0.01, 0, 0};
+  frc::PIDController x_pid{0.1, 0, 0};
+  frc::PIDController y_pid{0.1, 0, 0};
 };

@@ -74,11 +74,12 @@ RobotContainer::RobotContainer() {
         m_arm.setWheel(-0.05);
 
     m_vision.SetDefaultCommand(
-        frc2::cmd::RunOnce([this] {
+        frc2::cmd::Run([this] {
             frc::SmartDashboard::PutNumber("tx", m_vision.GetX());
-            frc::SmartDashboard::PutNumber("ty", m_vision.GetY());
+            frc::SmartDashboard::PutNumber("tz", m_vision.GetZ());
             frc::SmartDashboard::PutNumber("ry", m_vision.GetYaw());
-        })
+        },
+        {&m_vision})
     );
 }
 
