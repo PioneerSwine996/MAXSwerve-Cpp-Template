@@ -16,8 +16,12 @@
 #include <frc/controller/PIDController.h>
 #include <frc/filter/SlewRateLimiter.h>
 
+#include <frc/Timer.h>
+
 #include "Constants.h"
 #include "MAXSwerveModule.h"
+
+
 
 class DriveSubsystem : public frc2::SubsystemBase {
  public:
@@ -86,6 +90,17 @@ class DriveSubsystem : public frc2::SubsystemBase {
    */
   frc::Pose2d GetPose();
 
+  void start_timer() {
+    if (!started) {
+      started = true;
+      auto_timer.Start();
+    }
+  }
+
+  double get_timer() {
+    return auto_timer.Get().value();
+  }
+
   /**
    * Resets the odometry to the specified pose.
    *
@@ -108,6 +123,8 @@ class DriveSubsystem : public frc2::SubsystemBase {
                          -DriveConstants::kTrackWidth / 2}};
 
  private:
+  frc::Timer auto_timer;
+  double started = false;
   // Components (e.g. motor controllers and sensors) should generally be
   // declared private and exposed only through public methods.
 
@@ -123,6 +140,8 @@ class DriveSubsystem : public frc2::SubsystemBase {
   // Odometry class for tracking robot pose
   // 4 defines the number of modules
   frc::SwerveDriveOdometry<4> m_odometry;
+
+
 
   frc::PIDController theta_pid{0.05, 0, 0}; // 0.02
   frc::PIDController x_pid{1.0, 0, 0.0};

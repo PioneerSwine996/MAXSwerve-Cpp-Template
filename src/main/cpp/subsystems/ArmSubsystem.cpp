@@ -9,7 +9,7 @@ using namespace rev::spark;
 using namespace ctre::phoenix::motorcontrol;
 
 namespace State {
-  double rotation_setpoints[] = {0.315, 0.315, 0.380, 0.332, 0.164};
+  double rotation_setpoints[] = {0.315, 0.315, 0.280, 0.312, 0.114};
   double actuator_setpoints[] = {-120, -5, -5, -5, -5};
   int max_state = sizeof(rotation_setpoints)/sizeof(double) - 1;
 }
@@ -123,6 +123,9 @@ frc2::CommandPtr ArmSubsystem::to_position() {
                 if (Actuator_calc < -4)
                     Actuator_calc = -4;
 
+                Rotation_calc = frc::ApplyDeadband(Rotation_calc, 0.3, 12.0);
+                Actuator_calc = frc::ApplyDeadband(Actuator_calc, 0.3, 12.0);
+
 
                 frc::SmartDashboard::PutNumber("Rotation calc", Rotation_calc);
 
@@ -132,9 +135,5 @@ frc2::CommandPtr ArmSubsystem::to_position() {
                Rotation.SetVoltage(
                 //    m_shooterFeedforward.Calculate(setpoint) +
                    units::volt_t(Rotation_calc));
-             }).Until(
-                [this] {
-                    return m_ActuatorFeedback.AtSetpoint() && m_RotationFeedback.AtSetpoint();
-                }
-             ));
+             }));
     }
